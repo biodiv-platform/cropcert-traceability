@@ -46,5 +46,7 @@ public class Constants {
 	public static final String FINALIZE_CUPPING_STATUS = "finalizeCuppingStatus";
 	
 	public static final String UNION_CODE = "unionCode";
+	public static final String WEIGHT_AT_GRN = "weightAtGrn";
+	public static final String MC_AT_GRN = "mcAtGrn";
 	
 }

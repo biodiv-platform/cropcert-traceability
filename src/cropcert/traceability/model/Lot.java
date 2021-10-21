@@ -101,6 +101,12 @@ public class Lot implements Serializable, Cloneable {
 	@Column(name = "grn_timestamp")
 	private Timestamp grnTimestamp;
 
+	@Column(name = "weight_at_grn")
+	private Float weightAtGrn;
+
+	@Column(name = "mc_at_grn")
+	private Float mcAtGrn;
+
 	@Column(name = "grn_status")
 	private ActionStatus grnStatus = ActionStatus.NOTAPPLICABLE;
 
@@ -156,11 +162,11 @@ public class Lot implements Serializable, Cloneable {
 	public void setCoCode(Long coCode) {
 		this.coCode = coCode;
 	}
-	
+
 	public Long getUnionCode() {
 		return unionCode;
 	}
-	
+
 	public void setUnionCode(Long unionCode) {
 		this.unionCode = unionCode;
 	}
@@ -298,6 +304,22 @@ public class Lot implements Serializable, Cloneable {
 
 	public void setGrnTimestamp(Timestamp grnTimestamp) {
 		this.grnTimestamp = grnTimestamp;
+	}
+
+	public Float getWeightAtGrn() {
+		return weightAtGrn;
+	}
+
+	public void setWeightAtGrn(Float weightAtGrn) {
+		this.weightAtGrn = weightAtGrn;
+	}
+
+	public Float getMcAtGrn() {
+		return mcAtGrn;
+	}
+
+	public void setMcAtGrn(Float mcAtGrn) {
+		this.mcAtGrn = mcAtGrn;
 	}
 
 	public ActionStatus getGrnStatus() {

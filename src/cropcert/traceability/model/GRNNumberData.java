@@ -7,6 +7,8 @@ public class GRNNumberData {
 	private Long id;
 	private String grnNumber;
 	private Timestamp grnTimestamp;
+	private Float weightAtGrn;
+	private Float mcAtGrn;
 	private Boolean finalizeGrnStatus;
 
 	public GRNNumberData() {
@@ -44,6 +46,22 @@ public class GRNNumberData {
 
 	public void setGrnTimestamp(Timestamp grnTimestamp) {
 		this.grnTimestamp = grnTimestamp;
+	}
+
+	public Float getWeightAtGrn() {
+		return weightAtGrn;
+	}
+
+	public void setWeightAtGrn(Float weightAtGrn) {
+		this.weightAtGrn = weightAtGrn;
+	}
+
+	public Float getMcAtGrn() {
+		return mcAtGrn;
+	}
+
+	public void setMcAtGrn(Float mcAtGrn) {
+		this.mcAtGrn = mcAtGrn;
 	}
 
 	public Boolean getFinalizeGrnStatus() {

@@ -160,7 +160,8 @@ public class LotApi {
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
 	@TokenAndUserAuthenticated(permissions = { Permissions.CO_PERSON })
-	public Response updateCooperativeAction(@Context HttpServletRequest request, @ApiParam("coopActionData") CoopActionData coopActionData) {
+	public Response updateCooperativeAction(@Context HttpServletRequest request,
+			@ApiParam("coopActionData") CoopActionData coopActionData) {
 		Lot lot;
 		try {
 			lot = lotService.updateCoopAction(coopActionData, request);
@@ -185,7 +186,7 @@ public class LotApi {
 		try {
 			lot = lotService.updateMillingAction(millingActionData, request);
 			return Response.ok().entity(lot).build();
-		} catch (JSONException | ValidationException e) {
+		} catch (ValidationException e) {
 			return Response.status(Status.BAD_REQUEST)
 					.entity(new HashMap<String, String>().put("error", e.getMessage())).build();
 		}
@@ -199,7 +200,8 @@ public class LotApi {
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
 	@TokenAndUserAuthenticated(permissions = { Permissions.UNION })
-	public Response updateGRNNumer(@Context HttpServletRequest request, @ApiParam("grnNumberData") GRNNumberData grnNumberData) {
+	public Response updateGRNNumer(@Context HttpServletRequest request,
+			@ApiParam("grnNumberData") GRNNumberData grnNumberData) {
 		try {
 			if (lotService.checkForDuplicate(grnNumberData)) {
 				JSONObject jo = new JSONObject();
@@ -208,7 +210,7 @@ public class LotApi {
 			}
 			Lot response = lotService.updateGRNNumer(grnNumberData, request);
 			return Response.ok().entity(response).build();
-		} catch (JSONException | IOException e) {
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return Response.status(Status.NO_CONTENT)

@@ -18,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -68,7 +67,7 @@ public class LotService extends AbstractService<Lot> {
 	public Map<String, Object> saveInBulk(String jsonString, HttpServletRequest request)
 			throws JsonParseException, JsonMappingException, IOException, JSONException {
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		JSONObject jsonObject = new JSONObject(jsonString);
 
 		JSONArray jsonArray = (JSONArray) jsonObject.remove("batchIds");
@@ -123,7 +122,7 @@ public class LotService extends AbstractService<Lot> {
 		}
 		Activity activity = new Activity(lot.getClass().getSimpleName(), lotId, userId, timestamp,
 				Constants.LOT_CREATION, lot.getLotName());
-		activity = activityService.save(activity);
+		activityService.save(activity);
 
 		result.put("lot", lot);
 		result.put("batches", batches);
@@ -154,7 +153,7 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.WEIGHT_LEAVING_COOPERATIVE, weightLeavingCooperative + "");
-			activity = activityService.save(activity);
+			activityService.save(activity);
 		}
 
 		if (isDifferent(mcLeavingCooperative, coopActionData.getMcLeavingCooperative())) {
@@ -163,7 +162,7 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.MC_LEAVING_COOPERATIVE, mcLeavingCooperative + "");
-			activity = activityService.save(activity);
+			activityService.save(activity);
 		}
 
 		if (isDifferent(timeToFactory, coopActionData.getTimeToFactory())) {
@@ -172,7 +171,7 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.TIME_TO_FACTORY, timeToFactory + "");
-			activity = activityService.save(activity);
+			activityService.save(activity);
 		}
 
 		if (coopActionData.getFinalizeCoopStatus() != null && coopActionData.getFinalizeCoopStatus()) {
@@ -185,7 +184,7 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.FINALIZE_COOP_STATUS, ActionStatus.DONE.toString());
-			activity = activityService.save(activity);
+			activityService.save(activity);
 		}
 
 		if (weightLeavingCooperative == null && mcLeavingCooperative == null && timeToFactory == null)
@@ -198,8 +197,7 @@ public class LotService extends AbstractService<Lot> {
 		return update(lot);
 	}
 
-	public Lot updateMillingAction(MillingActionData millingActionData, HttpServletRequest request)
-			throws JSONException {
+	public Lot updateMillingAction(MillingActionData millingActionData, HttpServletRequest request) {
 		Long id = millingActionData.getId();
 		Lot lot = findById(id);
 
@@ -272,7 +270,7 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.MILLING_TIME, millingActionData.getMillingTime() + "");
-			activity = activityService.save(activity);
+			activityService.save(activity);
 		}
 
 		if (isDifferent(lot.getUnionCode(), millingActionData.getUnionCode())) {
@@ -282,7 +280,7 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.UNION_CODE, millingActionData.getUnionCode() + "");
-			activity = activityService.save(activity);
+			activityService.save(activity);
 		}
 
 		if (millingActionData.getFinalizeMillingStatus() != null && millingActionData.getFinalizeMillingStatus()) {
@@ -297,7 +295,7 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.FINALIZE_MILLING_STATUS, ActionStatus.DONE.toString());
-			activity = activityService.save(activity);
+			activityService.save(activity);
 		}
 
 		if (weightArrivingFactory == null && weightLeavingFactory == null && mcArrivingFactory == null
@@ -311,9 +309,7 @@ public class LotService extends AbstractService<Lot> {
 		return update(lot);
 	}
 
-	public Lot updateGRNNumer(GRNNumberData grnNumberData, HttpServletRequest request)
-			throws JsonProcessingException, JSONException, IOException {
-		// JSONObject jsonObject = new JSONObject(grnNumberData);
+	public Lot updateGRNNumer(GRNNumberData grnNumberData, HttpServletRequest request) {
 
 		Long id = grnNumberData.getId();
 		Lot lot = findById(id);
@@ -326,6 +322,8 @@ public class LotService extends AbstractService<Lot> {
 
 		Timestamp grnTimestamp = lot.getGrnTimestamp();
 		String grnNumber = lot.getGrnNumber();
+		Float weight = lot.getWeightAtGrn();
+		Float mc = lot.getMcAtGrn();
 		String userId = UserUtil.getUserDetails(request).getId();
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 
@@ -337,7 +335,7 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.GRN_NUMBER, grnNumber);
-			activity = activityService.save(activity);
+			activityService.save(activity);
 		}
 		if (isDifferent(grnTimestamp, grnNumberData.getGrnTimestamp())) {
 			grnTimestamp = grnNumberData.getGrnTimestamp();
@@ -347,10 +345,28 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.GRN_TIME, grnTimestamp + "");
-			activity = activityService.save(activity);
+			activityService.save(activity);
+		}
+		if (isDifferent(weight, grnNumberData.getWeightAtGrn())) {
+			weight = grnNumberData.getWeightAtGrn();
+			lot.setWeightAtGrn(weight);
+			lot.setLotStatus(LotStatus.AT_UNION);
+
+			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
+					Constants.WEIGHT_AT_GRN, grnTimestamp + "");
+			activityService.save(activity);
+		}
+		if (isDifferent(mc, grnNumberData.getMcAtGrn())) {
+			mc = grnNumberData.getMcAtGrn();
+			lot.setMcAtGrn(mc);
+			lot.setLotStatus(LotStatus.AT_UNION);
+
+			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
+					Constants.MC_AT_GRN, grnTimestamp + "");
+			activityService.save(activity);
 		}
 		if (grnNumberData.getFinalizeGrnStatus() != null && grnNumberData.getFinalizeGrnStatus()) {
-			if (grnNumber == null || grnTimestamp == null) {
+			if (grnNumber == null || grnTimestamp == null || weight == null || mc == null) {
 				throw new ValidationException("Update all value first");
 			}
 
@@ -365,7 +381,7 @@ public class LotService extends AbstractService<Lot> {
 
 			Activity activity = new Activity(lot.getClass().getSimpleName(), lot.getId(), userId, timestamp,
 					Constants.FINALIZE_GRN_STATUS, ActionStatus.DONE.toString());
-			activity = activityService.save(activity);
+			activityService.save(activity);
 		}
 
 		if (grnNumber == null && grnTimestamp == null) {
@@ -380,7 +396,7 @@ public class LotService extends AbstractService<Lot> {
 		return lot;
 	}
 
-	public boolean checkForDuplicate(GRNNumberData grnNumberData) throws JSONException {
+	public boolean checkForDuplicate(GRNNumberData grnNumberData) {
 		if (grnNumberData.getId() == null)
 			throw new ValidationException("Id not found");
 

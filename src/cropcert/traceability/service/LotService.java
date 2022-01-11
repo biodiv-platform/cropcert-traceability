@@ -31,9 +31,11 @@ import cropcert.traceability.model.Activity;
 import cropcert.traceability.model.Batch;
 import cropcert.traceability.model.CoopActionData;
 import cropcert.traceability.model.Cupping;
+import cropcert.traceability.model.FactoryReport;
 import cropcert.traceability.model.GRNNumberData;
 import cropcert.traceability.model.Lot;
 import cropcert.traceability.model.LotCreation;
+import cropcert.traceability.model.LotList;
 import cropcert.traceability.model.MillingActionData;
 import cropcert.traceability.util.UserUtil;
 import cropcert.user.ApiException;
@@ -57,11 +59,37 @@ public class LotService extends AbstractService<Lot> {
 	private CuppingService cuppingService;
 
 	@Inject
+	private FactoryReportService factoryReportService;
+
+	@Inject
 	private UserApi userApi;
 
 	@Inject
 	public LotService(LotDao dao) {
 		super(dao);
+	}
+
+	public List<LotList> getLotList(HttpServletRequest request, String coCodes, Integer limit, Integer offset) {
+
+		Object[] values = coCodes.split(",");
+		Long[] longValues = new Long[values.length];
+		for (int i = 0; i < values.length; i++) {
+			longValues[i] = Long.parseLong(values[i].toString());
+		}
+		List<Lot> lots = dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
+
+		List<LotList> lotLists = new ArrayList<>();
+		for (Lot lot : lots) {
+			FactoryReport factoryReport = null;
+			try {
+				factoryReport = factoryReportService.findByPropertyWithCondtion("lotId", lot.getId(), "=");
+			} catch (NoResultException e) {
+				// Don't do anything here.
+			}
+			LotList lotList = new LotList(lot, factoryReport);
+			lotLists.add(lotList);
+		}
+		return lotLists;
 	}
 
 	public Map<String, Object> saveInBulk(String jsonString, HttpServletRequest request)
@@ -465,9 +493,9 @@ public class LotService extends AbstractService<Lot> {
 		else
 			lots = findAll(limit, offset);
 
-		List<Map<String, Object>> lotWithCuppings = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> lotWithCuppings = new ArrayList<>();
 		for (Lot lot : lots) {
-			Map<String, Object> lotWithCupping = new HashMap<String, Object>();
+			Map<String, Object> lotWithCupping = new HashMap<>();
 			List<Cupping> cuppings = cuppingService.getByPropertyWithCondtion("lotId", lot.getId(), "=", -1, -1);
 			lotWithCupping.put("lot", lot);
 			lotWithCupping.put("cuppings", cuppings);

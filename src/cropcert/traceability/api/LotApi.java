@@ -32,6 +32,7 @@ import cropcert.traceability.model.Batch;
 import cropcert.traceability.model.CoopActionData;
 import cropcert.traceability.model.GRNNumberData;
 import cropcert.traceability.model.Lot;
+import cropcert.traceability.model.LotList;
 import cropcert.traceability.model.MillingActionData;
 import cropcert.traceability.service.LotService;
 import io.swagger.annotations.Api;
@@ -87,6 +88,18 @@ public class LotApi {
 		return Response.ok().entity(lots).build();
 	}
 
+	@Path("all/marketing")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get all the Lots by the status", response = LotList.class, responseContainer = "List")
+	public Response getLotListForMarketing(@Context HttpServletRequest request,
+			@DefaultValue("-1") @QueryParam("coCodes") String coCodes,
+			@DefaultValue("-1") @QueryParam("limit") Integer limit,
+			@DefaultValue("-1") @QueryParam("offset") Integer offset) {
+		List<LotList> lots = lotService.getLotList(request, coCodes, limit, offset);
+		return Response.ok().entity(lots).build();
+	}
+	
 	@Path("all/coCodes")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

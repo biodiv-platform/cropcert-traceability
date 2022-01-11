@@ -15,9 +15,8 @@ import org.hibernate.query.Query;
 
 public abstract class AbstractDao<T, K extends Serializable> {
 
-
 	protected SessionFactory sessionFactory;
-	
+
 	protected Class<? extends T> daoType;
 
 	protected AbstractDao(SessionFactory sessionFactory) {
@@ -31,9 +30,9 @@ public abstract class AbstractDao<T, K extends Serializable> {
 		try {
 			tx = session.beginTransaction();
 			session.save(entity);
-			tx.commit();			
+			tx.commit();
 		} catch (Exception e) {
-			if(tx!=null)
+			if (tx != null)
 				tx.rollback();
 			throw e;
 		} finally {
@@ -41,16 +40,16 @@ public abstract class AbstractDao<T, K extends Serializable> {
 		}
 		return entity;
 	}
-	
+
 	public T saveOrUpdate(T entity) {
 		Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
 			session.saveOrUpdate(entity);
-			tx.commit();			
+			tx.commit();
 		} catch (Exception e) {
-			if(tx!=null)
+			if (tx != null)
 				tx.rollback();
 			throw e;
 		} finally {
@@ -65,9 +64,9 @@ public abstract class AbstractDao<T, K extends Serializable> {
 		try {
 			tx = session.beginTransaction();
 			session.update(entity);
-			tx.commit();			
+			tx.commit();
 		} catch (Exception e) {
-			if(tx!=null)
+			if (tx != null)
 				tx.rollback();
 			throw e;
 		} finally {
@@ -82,9 +81,9 @@ public abstract class AbstractDao<T, K extends Serializable> {
 		try {
 			tx = session.beginTransaction();
 			session.delete(entity);
-			tx.commit();			
+			tx.commit();
 		} catch (Exception e) {
-			if(tx!=null)
+			if (tx != null)
 				tx.rollback();
 			throw e;
 		} finally {
@@ -106,41 +105,37 @@ public abstract class AbstractDao<T, K extends Serializable> {
 	@SuppressWarnings("unchecked")
 	public List<T> findAll(int limit, int offset) {
 		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(daoType)
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		Criteria criteria = session.createCriteria(daoType).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<T> entities = criteria.setFirstResult(offset).setMaxResults(limit).list();
 		return entities;
 	}
-	
-	//TODO:improve this to do dynamic finder on any property
+
+	// TODO:improve this to do dynamic finder on any property
 	public T findByPropertyWithCondition(String property, Object value, String condition) {
-		String queryStr = "" +
-			    "from "+daoType.getSimpleName()+" t " +
-			    "where t."+property+" "+condition+" :value" ;
+		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + "where t." + property + " " + condition
+				+ " :value";
 		Session session = sessionFactory.openSession();
 		org.hibernate.query.Query query = session.createQuery(queryStr);
 		query.setParameter("value", value);
-		
+
 		T entity = null;
 		try {
 			entity = (T) query.getSingleResult();
-		} catch(NoResultException e) {
-			throw e;
+		} finally {
+			session.close();
 		}
-		session.close();
 		return entity;
 
 	}
-	
+
 	public List<T> getByPropertyWithCondtion(String property, Object value, String condition, int limit, int offset) {
 		return getByPropertyWithCondtion(property, value, condition, limit, offset, "id");
 	}
-	
-	public List<T> getByPropertyWithCondtion(String property, Object value, String condition, int limit, int offset, String orderBy) {
-		String queryStr = "" +
-			    "from "+daoType.getSimpleName()+" t " +
-			    "where t."+property+" "+condition+" :value" +
-			    " order by :orderBy";
+
+	public List<T> getByPropertyWithCondtion(String property, Object value, String condition, int limit, int offset,
+			String orderBy) {
+		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + "where t." + property + " " + condition
+				+ " :value" + " order by :orderBy";
 		Session session = sessionFactory.openSession();
 		org.hibernate.query.Query query = session.createQuery(queryStr);
 		query.setParameter("value", value);
@@ -148,35 +143,32 @@ public abstract class AbstractDao<T, K extends Serializable> {
 
 		List<T> resultList = new ArrayList<T>();
 		try {
-			if(limit>0 && offset >= 0)
+			if (limit > 0 && offset >= 0)
 				query = query.setFirstResult(offset).setMaxResults(limit);
 			resultList = query.getResultList();
-			
+
 		} catch (NoResultException e) {
 			throw e;
 		}
 		session.close();
 		return resultList;
 	}
-	
+
 	public List<T> getByPropertyfromArray(String property, Object[] values, int limit, int offset, String orderBy) {
-		if(orderBy == null || "".equals(orderBy))
+		if (orderBy == null || "".equals(orderBy))
 			orderBy = "id";
-		String queryStr = "" +
-			    "from "+daoType.getSimpleName()+" t " +
-			    "where t."+property+" in (:values) and " +
-			    " ( isDeleted is null or isDeleted = " + false + " ) " +
-			    " order by " + orderBy;
+		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + "where t." + property + " in (:values) and "
+				+ " ( isDeleted is null or isDeleted = " + false + " ) " + " order by " + orderBy;
 		Session session = sessionFactory.openSession();
 		Query query = session.createQuery(queryStr);
 		query.setParameterList("values", values);
 
 		List<T> resultList = new ArrayList<T>();
 		try {
-			if(limit>0 && offset >= 0)
+			if (limit > 0 && offset >= 0)
 				query = query.setFirstResult(offset).setMaxResults(limit);
 			resultList = query.getResultList();
-			
+
 		} catch (NoResultException e) {
 			throw e;
 		}
@@ -186,29 +178,29 @@ public abstract class AbstractDao<T, K extends Serializable> {
 
 	public List<T> getByMultiplePropertyWithCondtion(String[] properties, Object[] values, Integer limit,
 			Integer offset) {
-		String queryStr = "from "+daoType.getSimpleName()+" t where ";
-		
+		String queryStr = "from " + daoType.getSimpleName() + " t where ";
+
 		for (int i = 0; i < properties.length; i++) {
 			String property = properties[i];
-			queryStr += " t."+property+" = :value"+i;
-			if (i<properties.length-1)
+			queryStr += " t." + property + " = :value" + i;
+			if (i < properties.length - 1)
 				queryStr += " and ";
 		}
-			    
+
 		queryStr += " order by id";
 		Session session = sessionFactory.openSession();
 		Query query = session.createQuery(queryStr);
-		
+
 		for (int i = 0; i < values.length; i++) {
-			query.setParameter("value"+i, values[i]);
+			query.setParameter("value" + i, values[i]);
 		}
 
 		List<T> resultList = new ArrayList<T>();
 		try {
-			if(limit>0 && offset >= 0)
+			if (limit > 0 && offset >= 0)
 				query = query.setFirstResult(offset).setMaxResults(limit);
 			resultList = query.getResultList();
-			
+
 		} catch (NoResultException e) {
 			throw e;
 		}

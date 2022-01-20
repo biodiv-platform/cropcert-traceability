@@ -39,7 +39,9 @@ import cropcert.traceability.model.LotList;
 import cropcert.traceability.model.MillingActionData;
 import cropcert.traceability.util.UserUtil;
 import cropcert.user.ApiException;
+import cropcert.user.api.CooperativeApi;
 import cropcert.user.api.UserApi;
+import cropcert.user.model.Cooperative;
 
 public class LotService extends AbstractService<Lot> {
 
@@ -65,6 +67,9 @@ public class LotService extends AbstractService<Lot> {
 	private UserApi userApi;
 
 	@Inject
+	private CooperativeApi cooperativeApi;
+
+	@Inject
 	public LotService(LotDao dao) {
 		super(dao);
 	}
@@ -73,8 +78,19 @@ public class LotService extends AbstractService<Lot> {
 
 		Object[] values = coCodes.split(",");
 		Long[] longValues = new Long[values.length];
+		Map<Long, Cooperative> cooperatives = new HashMap<>();
 		for (int i = 0; i < values.length; i++) {
 			longValues[i] = Long.parseLong(values[i].toString());
+
+			Long coCode = longValues[i];
+			Cooperative cooperative = null;
+			try {
+				cooperative = cooperativeApi.findByCode(coCode);
+			} catch (ApiException e) {
+				e.printStackTrace();
+			}
+
+			cooperatives.put(coCode, cooperative);
 		}
 		List<Lot> lots = dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
 
@@ -86,7 +102,9 @@ public class LotService extends AbstractService<Lot> {
 			} catch (NoResultException e) {
 				// Don't do anything here.
 			}
-			LotList lotList = new LotList(lot, factoryReport);
+			Long coCode = lot.getCoCode();
+			Cooperative cooperative = cooperatives.get(coCode);
+			LotList lotList = new LotList(lot, factoryReport, cooperative);
 			lotLists.add(lotList);
 		}
 		return lotLists;

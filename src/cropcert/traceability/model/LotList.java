@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cropcert.traceability.LotStatus;
+import cropcert.user.model.Cooperative;
 
 public class LotList {
 
@@ -18,12 +19,16 @@ public class LotList {
 	private Set<Float> qualityScores = new LinkedHashSet<>();
 	private String grnNumber;
 	private Timestamp createdOn;
+	private String cooperativeName;
+	private String cooperativeFullName;
+	private String manager;
+	private String contact;
 
-	public LotList(Lot lot, FactoryReport factoryReport) {
+	public LotList(Lot lot, FactoryReport factoryReport, Cooperative cooperative) {
 		this.id = lot.getId();
 		this.lotName = lot.getLotName();
 		this.coCode = lot.getCoCode();
-		if(factoryReport != null) {
+		if (factoryReport != null) {
 			this.inputWeightInFactory = factoryReport.getInputWeight();
 			this.highGradeWeight = factoryReport.getHighGradeWeight();
 		}
@@ -31,6 +36,12 @@ public class LotList {
 		this.qualityScores = getQualityScore(lot.getCuppings());
 		this.grnNumber = lot.getGrnNumber();
 		this.createdOn = lot.getCreatedOn();
+		if(cooperative != null) {
+			this.cooperativeName = cooperative.getName();
+			this.cooperativeFullName = cooperative.getFullName();
+			this.manager = cooperative.getManager();
+			this.contact = cooperative.getContact();
+		}
 	}
 
 	private Set<Float> getQualityScore(Set<Cupping> cuppings) {
@@ -116,6 +127,38 @@ public class LotList {
 
 	public void setCreatedOn(Timestamp createdOn) {
 		this.createdOn = createdOn;
+	}
+
+	public String getCooperativeName() {
+		return cooperativeName;
+	}
+
+	public void setCooperativeName(String cooperativeName) {
+		this.cooperativeName = cooperativeName;
+	}
+
+	public String getCooperativeFullName() {
+		return cooperativeFullName;
+	}
+
+	public void setCooperativeFullName(String cooperativeFullName) {
+		this.cooperativeFullName = cooperativeFullName;
+	}
+
+	public String getManager() {
+		return manager;
+	}
+
+	public void setManager(String manager) {
+		this.manager = manager;
+	}
+
+	public String getContact() {
+		return contact;
+	}
+
+	public void setContact(String contact) {
+		this.contact = contact;
 	}
 
 }

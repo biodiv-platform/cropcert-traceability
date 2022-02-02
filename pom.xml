@@ -24,7 +24,7 @@
 		<org.pac4j.version>3.7.0</org.pac4j.version>
 		<com.fasterxml.jackson>2.9.9</com.fasterxml.jackson>
 
-		<postgresql.version>42.2.5</postgresql.version>
+		<postgresql.version>42.2.25</postgresql.version>
 		<hibernate-core.version>5.4.1.Final</hibernate-core.version>
 
 		<swagger.version>1.5.22</swagger.version>

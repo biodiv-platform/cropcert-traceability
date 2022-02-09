@@ -25,7 +25,7 @@
 		<com.fasterxml.jackson>2.9.9</com.fasterxml.jackson>
 
 		<postgresql.version>42.2.5</postgresql.version>
-		<hibernate-core.version>5.4.1.Final</hibernate-core.version>
+		<hibernate-core.version>5.4.24.Final</hibernate-core.version>
 
 		<swagger.version>1.5.22</swagger.version>
 		<swagger-ui.version>3.17.0</swagger-ui.version>

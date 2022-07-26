@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.json.JSONException;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import cropcert.traceability.model.Activity;
 import cropcert.traceability.model.Batch;

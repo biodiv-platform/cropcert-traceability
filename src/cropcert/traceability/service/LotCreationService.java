@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import cropcert.traceability.dao.LotCreationDao;
 import cropcert.traceability.model.Batch;

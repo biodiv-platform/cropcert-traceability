@@ -9,7 +9,7 @@ import org.json.JSONException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import cropcert.traceability.dao.ActivityDao;
 import cropcert.traceability.model.Activity;

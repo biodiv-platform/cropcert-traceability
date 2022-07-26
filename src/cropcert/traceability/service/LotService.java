@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
-import javax.ws.rs.core.HttpHeaders;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,8 +19,11 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
+import cropcert.entities.model.Cooperative;
+import cropcert.entities.service.CooperativeService;
+import cropcert.entities.service.UserService;
 import cropcert.traceability.ActionStatus;
 import cropcert.traceability.Constants;
 import cropcert.traceability.LotStatus;
@@ -38,10 +40,6 @@ import cropcert.traceability.model.LotCreation;
 import cropcert.traceability.model.LotList;
 import cropcert.traceability.model.MillingActionData;
 import cropcert.traceability.util.UserUtil;
-import cropcert.user.ApiException;
-import cropcert.user.api.CooperativeApi;
-import cropcert.user.api.UserApi;
-import cropcert.user.model.Cooperative;
 
 public class LotService extends AbstractService<Lot> {
 
@@ -64,10 +62,10 @@ public class LotService extends AbstractService<Lot> {
 	private FactoryReportService factoryReportService;
 
 	@Inject
-	private UserApi userApi;
+	private UserService userApi;
 
 	@Inject
-	private CooperativeApi cooperativeApi;
+	private CooperativeService cooperativeApi;
 
 	@Inject
 	public LotService(LotDao dao) {
@@ -84,11 +82,8 @@ public class LotService extends AbstractService<Lot> {
 
 			Long coCode = longValues[i];
 			Cooperative cooperative = null;
-			try {
-				cooperative = cooperativeApi.findByCode(coCode);
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
+
+			cooperative = cooperativeApi.findByCode(coCode);
 
 			cooperatives.put(coCode, cooperative);
 		}
@@ -458,11 +453,8 @@ public class LotService extends AbstractService<Lot> {
 	@SuppressWarnings("unchecked")
 	public List<Lot> getByCoCodes(HttpServletRequest request, String coCodes, Integer limit, Integer offset) {
 		Map<String, Object> userData;
-		try {
-			userData = userApi.getUser(request.getHeader(HttpHeaders.AUTHORIZATION));
-		} catch (ApiException e) {
-			return new ArrayList<Lot>();
-		}
+
+		userData = userApi.getMyData(request);
 		Map<String, Object> user = (Map<String, Object>) userData.get("user");
 		String role = (String) user.get("role");
 

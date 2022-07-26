@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -13,12 +14,11 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
-import com.sun.jersey.guice.JerseyServletModule;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import com.google.inject.servlet.ServletModule;
 
+import cropcert.entities.api.UserApi;
 import cropcert.traceability.api.APIModule;
 import cropcert.traceability.dao.DaoModule;
-import cropcert.traceability.filter.FilterModule;
 import cropcert.traceability.service.ServiceModule;
 import cropcert.traceability.util.Utility;
 
@@ -26,13 +26,13 @@ public class TraceabilityServletContextListener extends GuiceServletContextListe
 
 	@Override
 	protected Injector getInjector() {
-		
-		Injector injector = Guice.createInjector(new JerseyServletModule() {
+
+		Injector injector = Guice.createInjector(new ServletModule() {
 			@Override
 			protected void configureServlets() {
-				
+
 				Configuration configuration = new Configuration();
-				
+
 				try {
 					for (Class<?> cls : Utility.getEntityClassesFromPackage("cropcert")) {
 						configuration.addAnnotatedClass(cls);
@@ -40,21 +40,24 @@ public class TraceabilityServletContextListener extends GuiceServletContextListe
 				} catch (ClassNotFoundException | IOException | URISyntaxException e) {
 					e.printStackTrace();
 				}
-				
+
 				configuration = configuration.configure();
 				SessionFactory sessionFactory = configuration.buildSessionFactory();
-				
+
 				bind(SessionFactory.class).toInstance(sessionFactory);
 				bind(ObjectMapper.class).in(Scopes.SINGLETON);
-				
+				bind(UserApi.class).in(Scopes.SINGLETON);
+				bind(ServletContainer.class).in(Scopes.SINGLETON);
+
 				Map<String, String> props = new HashMap<String, String>();
 				props.put("javax.ws.rs.Application", MyApplication.class.getName());
+				props.put("jersey.config.server.provider.packages", "cropcert");
 				props.put("jersey.config.server.wadl.disableWadl", "true");
-				
-				serve("/api/*").with(GuiceContainer.class, props);
+
+				serve("/api/*").with(ServletContainer.class, props);
 			}
-		}, new DaoModule(), new APIModule(), new ServiceModule(), new FilterModule());
-		
-		return injector; 
+		}, new DaoModule(), new APIModule(), new ServiceModule());
+
+		return injector;
 	}
 }

@@ -2,13 +2,11 @@ package cropcert.traceability.service;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,8 +15,9 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
+import cropcert.entities.service.UserService;
 import cropcert.traceability.ActionStatus;
 import cropcert.traceability.BatchType;
 import cropcert.traceability.Constants;
@@ -29,8 +28,6 @@ import cropcert.traceability.model.Batch;
 import cropcert.traceability.model.BatchCreation;
 import cropcert.traceability.util.UserUtil;
 import cropcert.traceability.util.ValidationException;
-import cropcert.user.ApiException;
-import cropcert.user.api.UserApi;
 
 public class BatchService extends AbstractService<Batch> {
 
@@ -42,12 +39,12 @@ public class BatchService extends AbstractService<Batch> {
 
 	@Inject
 	private BatchCreationService batchCreationService;
-	
+
 	@Inject
 	private BatchDao batchDao;
 
 	@Inject
-	private UserApi userApi;
+	private UserService userApi;
 
 	@Inject
 	public BatchService(BatchDao dao) {
@@ -220,18 +217,15 @@ public class BatchService extends AbstractService<Batch> {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public List getAllBatches(HttpServletRequest request, String objectList, int limit,
-			int offset) throws NumberFormatException {
+	public List getAllBatches(HttpServletRequest request, String objectList, int limit, int offset)
+			throws NumberFormatException {
 
 		Map<String, Object> userData;
-		try {
-			userData = userApi.getUser(request.getHeader(HttpHeaders.AUTHORIZATION));
-		} catch (ApiException e) {
-			return new ArrayList();
-		}
+		userData = userApi.getMyData(request);
+		@SuppressWarnings("unchecked")
 		Map<String, Object> user = (Map<String, Object>) userData.get("user");
 		String role = (String) user.get("role");
-		
+
 		switch (role) {
 		case Permissions.ADMIN:
 		case Permissions.CO_PERSON:

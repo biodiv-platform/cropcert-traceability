@@ -8,9 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,11 +21,11 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javax.inject.Inject;
 
+import cropcert.entities.ApiException;
+import cropcert.entities.api.CooperativeApi;
+import cropcert.entities.api.UserApi;
 import cropcert.entities.model.Cooperative;
-import cropcert.entities.service.CooperativeService;
-import cropcert.entities.service.UserService;
 import cropcert.traceability.ActionStatus;
 import cropcert.traceability.Constants;
 import cropcert.traceability.LotStatus;
@@ -62,10 +64,10 @@ public class LotService extends AbstractService<Lot> {
 	private FactoryReportService factoryReportService;
 
 	@Inject
-	private UserService userApi;
+	private UserApi userApi;
 
 	@Inject
-	private CooperativeService cooperativeApi;
+	private CooperativeApi cooperativeApi;
 
 	@Inject
 	public LotService(LotDao dao) {
@@ -83,7 +85,11 @@ public class LotService extends AbstractService<Lot> {
 			Long coCode = longValues[i];
 			Cooperative cooperative = null;
 
-			cooperative = cooperativeApi.findByCode(coCode);
+			try {
+				cooperative = cooperativeApi.findByCode(coCode);
+			} catch (ApiException e) {
+				e.printStackTrace();
+			}
 
 			cooperatives.put(coCode, cooperative);
 		}
@@ -450,11 +456,15 @@ public class LotService extends AbstractService<Lot> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Lot> getByCoCodes(HttpServletRequest request, String coCodes, Integer limit, Integer offset) {
 		Map<String, Object> userData;
 
-		userData = userApi.getMyData(request);
+		try {
+			userData = userApi.getUser(request.getHeader(HttpHeaders.AUTHORIZATION));
+		} catch (ApiException e) {
+			return new ArrayList();
+		}
 		Map<String, Object> user = (Map<String, Object>) userData.get("user");
 		String role = (String) user.get("role");
 

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cropcert</groupId>
 	<artifactId>traceability</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>war</packaging>
 
 	<properties>
@@ -42,7 +42,7 @@
 
 	</properties>
 
-	<distributionManagement>
+<distributionManagement>
 		<repository>
 			<id>central</id>
 			<name>jfrog-releases</name>
@@ -216,8 +216,8 @@
 		</dependency>
         <dependency>
 			<groupId>cropcert</groupId>
-			<artifactId>entities</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<artifactId>entities-client</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 
 	</dependencies>
@@ -312,7 +312,7 @@
 							<locations>
 								cropcert
 							</locations>
-							<schemes>http,https</schemes>
+							<schemes>http</schemes>
 							<host>localhost:8080</host>
 							<basePath>/${warName}/api</basePath>
 							<info>

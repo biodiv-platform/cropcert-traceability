@@ -3,10 +3,13 @@ package cropcert.traceability.service;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,9 +18,9 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javax.inject.Inject;
 
-import cropcert.entities.service.UserService;
+import cropcert.entities.ApiException;
+import cropcert.entities.api.UserApi;
 import cropcert.traceability.ActionStatus;
 import cropcert.traceability.BatchType;
 import cropcert.traceability.Constants;
@@ -44,7 +47,7 @@ public class BatchService extends AbstractService<Batch> {
 	private BatchDao batchDao;
 
 	@Inject
-	private UserService userApi;
+	private UserApi userApi;
 
 	@Inject
 	public BatchService(BatchDao dao) {
@@ -220,8 +223,12 @@ public class BatchService extends AbstractService<Batch> {
 	public List getAllBatches(HttpServletRequest request, String objectList, int limit, int offset)
 			throws NumberFormatException {
 
-		Map<String, Object> userData;
-		userData = userApi.getMyData(request);
+		Map<String, Object> userData = new HashMap<>();
+		try {
+			userData = userApi.getUser(request.getHeader(HttpHeaders.AUTHORIZATION));
+		} catch (ApiException e) {
+			e.printStackTrace();
+		}
 		@SuppressWarnings("unchecked")
 		Map<String, Object> user = (Map<String, Object>) userData.get("user");
 		String role = (String) user.get("role");

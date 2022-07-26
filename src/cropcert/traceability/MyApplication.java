@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Injector;
 import com.strandls.authentication_utility.filter.InterceptorModule;
 
-import cropcert.entities.util.Utility;
+import cropcert.traceability.util.Utility;
 import io.swagger.jaxrs.config.BeanConfig;
 
 public class MyApplication extends Application{

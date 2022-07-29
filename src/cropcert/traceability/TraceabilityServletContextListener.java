@@ -15,6 +15,7 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
+import com.strandls.user.controller.UserServiceApi;
 
 import cropcert.entities.api.UserApi;
 import cropcert.traceability.api.APIModule;
@@ -47,6 +48,7 @@ public class TraceabilityServletContextListener extends GuiceServletContextListe
 				bind(SessionFactory.class).toInstance(sessionFactory);
 				bind(ObjectMapper.class).in(Scopes.SINGLETON);
 				bind(UserApi.class).in(Scopes.SINGLETON);
+				bind(UserServiceApi.class).in(Scopes.SINGLETON);
 				bind(ServletContainer.class).in(Scopes.SINGLETON);
 
 				Map<String, String> props = new HashMap<String, String>();

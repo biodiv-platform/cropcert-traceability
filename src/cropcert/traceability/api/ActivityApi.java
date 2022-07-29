@@ -94,17 +94,18 @@ public class ActivityApi {
 	public Response getByLotId(@Context HttpServletRequest request, @DefaultValue("-1") @QueryParam("lotId") Long lotId,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset) {
-		List<Activity> activities;
-		if (lotId == -1) {
-			String[] properties = { "objectType" };
-			Object[] values = { Lot.class.getSimpleName() };
-			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
-		} else {
-			String[] properties = { "objectType", "objectId" };
-			Object[] values = { Lot.class.getSimpleName(), lotId };
-			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
+
+		try {
+			List<Activity> activities = activityService.getByLotId(lotId, limit, offset);
+			return Response.ok().entity(activities).build();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+
 		}
-		return Response.ok().entity(activities).build();
+		return Response.status(Status.NOT_FOUND)
+				.entity(new HashMap<String, String>().put("error", "Activity list not found")).build();
+
 	}
 
 	@Path("user")

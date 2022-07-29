@@ -62,6 +62,17 @@ public class LotApi {
 		return Response.status(Status.CREATED).entity(lot).build();
 	}
 
+	@GET
+	@Path("show")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the information of the show page for lot", response = Map.class)
+	public Response getShowPage(@Context HttpServletRequest request,
+			@DefaultValue("-1") @QueryParam("lotId") Long lotId) throws JSONException {
+		Map<String, Object> pageInfo = lotService.getShowPage(lotId);
+		return Response.ok().entity(pageInfo).build();
+	}
+
 	@Path("all")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -99,7 +110,7 @@ public class LotApi {
 		List<LotList> lots = lotService.getLotList(request, coCodes, limit, offset);
 		return Response.ok().entity(lots).build();
 	}
-	
+
 	@Path("all/coCodes")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

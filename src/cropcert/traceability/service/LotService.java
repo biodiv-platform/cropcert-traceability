@@ -5,8 +5,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
@@ -21,6 +23,8 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.strandls.user.controller.UserServiceApi;
+import com.strandls.user.pojo.User;
 
 import cropcert.entities.ApiException;
 import cropcert.entities.api.CooperativeApi;
@@ -61,7 +65,13 @@ public class LotService extends AbstractService<Lot> {
 	private CuppingService cuppingService;
 
 	@Inject
+	private QualityReportService qualityService;
+
+	@Inject
 	private FactoryReportService factoryReportService;
+
+	@Inject
+	private UserServiceApi userServiceApi;
 
 	@Inject
 	private UserApi userApi;
@@ -109,6 +119,35 @@ public class LotService extends AbstractService<Lot> {
 			lotLists.add(lotList);
 		}
 		return lotLists;
+	}
+
+	public Map<String, Object> getShowPage(Long lotId) {
+		Map<String, Object> pageInfo = new HashMap<String, Object>();
+		try {
+			Lot lot = dao.findById(lotId);
+			pageInfo.put("lot", lot);
+			List<Activity> activities = activityService.getByLotId(lotId, -1, -1);
+			pageInfo.put("activities", activities);
+			Set<String> userIds = new HashSet<String>();
+			for (Activity activity : activities) {
+				userIds.add(activity.getUserId());
+			}
+
+			List<User> users = new ArrayList<User>();
+			for (String id : userIds) {
+
+				User user = userServiceApi.getUser(id);
+				users.add(user);
+
+			}
+			pageInfo.put("users", users);
+			pageInfo.put("cupping_report", cuppingService.getByPropertyWithCondtion("lot.id", lotId, "=", -1, -1));
+			pageInfo.put("quality_report", qualityService.getByPropertyWithCondtion("lotId", lotId, "=", -1, -1));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return pageInfo;
 	}
 
 	public Map<String, Object> saveInBulk(String jsonString, HttpServletRequest request)

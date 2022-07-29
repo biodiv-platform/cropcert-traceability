@@ -76,7 +76,7 @@ public class CuppingApi {
 	public Response getByLotId(@Context HttpServletRequest request, @DefaultValue("-1") @PathParam("lotId") Long lotId,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset) {
-		List<Cupping> cuppings = cuppingService.getByPropertyWithCondtion("lot.id", lotId, "=", limit, offset);;
+		List<Cupping> cuppings = cuppingService.getByPropertyWithCondtion("lot.id", lotId, "=", limit, offset);
 		return Response.ok().entity(cuppings).build();
 	}
 

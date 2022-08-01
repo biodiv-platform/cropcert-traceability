@@ -24,6 +24,8 @@ import javax.ws.rs.core.Response.Status;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.strandls.authentication_utility.filter.ValidateUser;
+
 import javax.inject.Inject;
 
 import cropcert.traceability.filter.Permissions;
@@ -114,6 +116,9 @@ public class LotApi {
 	@Path("all/coCodes")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	
+	@ValidateUser
+	
 	@ApiOperation(value = "Get all the Lots by the status", response = Lot.class, responseContainer = "List")
 	public Response getAllByCoCodes(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("coCodes") String coCodes,

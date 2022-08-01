@@ -11,6 +11,6 @@ public interface Permissions {
 	public static final String FACTORY   = "FACTORY_PERSON";
 	public static final String UNION     = "UNION_PERSON";
 	public static final String ADMIN     = "ROLE_ADMIN";
-	public static final String DEFAULT   = "default";
+	public static final String DEFAULT   = "DEFAULT";
 	
 }

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.user.controller.UserServiceApi;
+import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 
 import cropcert.entities.ApiException;
@@ -501,29 +502,35 @@ public class LotService extends AbstractService<Lot> {
 
 		try {
 			userData = userApi.getUser(request.getHeader(HttpHeaders.AUTHORIZATION));
-		} catch (ApiException e) {
-			return new ArrayList();
-		}
+		
 		Map<String, Object> user = (Map<String, Object>) userData.get("user");
-		String role = (String) user.get("role");
+		User userRole = objectMappper.readValue(objectMappper.writeValueAsString(user), User.class);
 
-		switch (role) {
-		case Permissions.CO_PERSON:
-			Long coCode = Long.parseLong(userData.get("coCode").toString());
-			return dao.getByPropertyWithCondtion("coCode", coCode, "=", limit, offset, "createdOn desc");
-		case Permissions.UNION:
-			Long unionCode = Long.parseLong(userData.get("unionCode").toString());
-			return dao.getByPropertyWithCondtion("unionCode", unionCode, "=", limit, offset, "createdOn desc");
-		case Permissions.ADMIN:
-			Object[] values = coCodes.split(",");
-			Long[] longValues = new Long[values.length];
-			for (int i = 0; i < values.length; i++) {
-				longValues[i] = Long.parseLong(values[i].toString());
+		for (Role role : userRole.getRoles()) {
+			switch (role.getAuthority()) {
+			case Permissions.CO_PERSON:
+				Long coCode = Long.parseLong(userData.get("coCode").toString());
+				return dao.getByPropertyWithCondtion("coCode", coCode, "=", limit, offset, "createdOn desc");
+			case Permissions.UNION:
+				Long unionCode = Long.parseLong(userData.get("unionCode").toString());
+				return dao.getByPropertyWithCondtion("unionCode", unionCode, "=", limit, offset, "createdOn desc");
+			case Permissions.ADMIN:
+				Object[] values = coCodes.split(",");
+				Long[] longValues = new Long[values.length];
+				for (int i = 0; i < values.length; i++) {
+					longValues[i] = Long.parseLong(values[i].toString());
+				}
+				return dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
+			default:
+				return new ArrayList<Lot>();
 			}
-			return dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
-		default:
-			return new ArrayList<Lot>();
 		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return new ArrayList();
+		
 
 	}
 

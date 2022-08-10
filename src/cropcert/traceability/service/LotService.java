@@ -19,6 +19,8 @@ import javax.ws.rs.core.HttpHeaders;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -49,6 +51,8 @@ import cropcert.traceability.model.MillingActionData;
 import cropcert.traceability.util.UserUtil;
 
 public class LotService extends AbstractService<Lot> {
+
+	public static final Logger logger = LoggerFactory.getLogger(LotService.class);
 
 	@Inject
 	private ObjectMapper objectMappper;
@@ -99,7 +103,7 @@ public class LotService extends AbstractService<Lot> {
 			try {
 				cooperative = cooperativeApi.findByCode(coCode);
 			} catch (ApiException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 
 			cooperatives.put(coCode, cooperative);
@@ -145,7 +149,7 @@ public class LotService extends AbstractService<Lot> {
 			pageInfo.put("cupping_report", cuppingService.getByPropertyWithCondtion("lot.id", lotId, "=", -1, -1));
 			pageInfo.put("quality_report", qualityService.getByPropertyWithCondtion("lotId", lotId, "=", -1, -1));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		return pageInfo;
@@ -502,35 +506,34 @@ public class LotService extends AbstractService<Lot> {
 
 		try {
 			userData = userApi.getUser(request.getHeader(HttpHeaders.AUTHORIZATION));
-		
-		Map<String, Object> user = (Map<String, Object>) userData.get("user");
-		User userRole = objectMappper.readValue(objectMappper.writeValueAsString(user), User.class);
 
-		for (Role role : userRole.getRoles()) {
-			switch (role.getAuthority()) {
-			case Permissions.CO_PERSON:
-				Long coCode = Long.parseLong(userData.get("coCode").toString());
-				return dao.getByPropertyWithCondtion("coCode", coCode, "=", limit, offset, "createdOn desc");
-			case Permissions.UNION:
-				Long unionCode = Long.parseLong(userData.get("unionCode").toString());
-				return dao.getByPropertyWithCondtion("unionCode", unionCode, "=", limit, offset, "createdOn desc");
-			case Permissions.ADMIN:
-				Object[] values = coCodes.split(",");
-				Long[] longValues = new Long[values.length];
-				for (int i = 0; i < values.length; i++) {
-					longValues[i] = Long.parseLong(values[i].toString());
+			Map<String, Object> user = (Map<String, Object>) userData.get("user");
+			User userRole = objectMappper.readValue(objectMappper.writeValueAsString(user), User.class);
+
+			for (Role role : userRole.getRoles()) {
+				switch (role.getAuthority()) {
+				case Permissions.CO_PERSON:
+					Long coCode = Long.parseLong(userData.get("coCode").toString());
+					return dao.getByPropertyWithCondtion("coCode", coCode, "=", limit, offset, "createdOn desc");
+				case Permissions.UNION:
+					Long unionCode = Long.parseLong(userData.get("unionCode").toString());
+					return dao.getByPropertyWithCondtion("unionCode", unionCode, "=", limit, offset, "createdOn desc");
+				case Permissions.ADMIN:
+					Object[] values = coCodes.split(",");
+					Long[] longValues = new Long[values.length];
+					for (int i = 0; i < values.length; i++) {
+						longValues[i] = Long.parseLong(values[i].toString());
+					}
+					return dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
+				default:
+					return new ArrayList<Lot>();
 				}
-				return dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
-			default:
-				return new ArrayList<Lot>();
 			}
-		}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return new ArrayList();
-		
 
 	}
 

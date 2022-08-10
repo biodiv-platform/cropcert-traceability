@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -19,8 +20,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.json.JSONException;
-
-import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cropcert.traceability.model.Activity;
 import cropcert.traceability.model.Batch;
@@ -33,6 +34,8 @@ import io.swagger.annotations.ApiOperation;
 @Path("activity")
 @Api("Activity")
 public class ActivityApi {
+
+	public static final Logger logger = LoggerFactory.getLogger(ActivityApi.class);
 
 	private ActivityService activityService;
 
@@ -186,7 +189,7 @@ public class ActivityApi {
 			activity = activityService.save(jsonString);
 			return Response.status(Status.CREATED).entity(activity).build();
 		} catch (IOException | JSONException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		return Response.status(Status.NO_CONTENT)

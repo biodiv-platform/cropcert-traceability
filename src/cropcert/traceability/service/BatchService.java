@@ -14,6 +14,8 @@ import javax.ws.rs.core.HttpHeaders;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -34,6 +36,8 @@ import cropcert.traceability.util.UserUtil;
 import cropcert.traceability.util.ValidationException;
 
 public class BatchService extends AbstractService<Batch> {
+
+	public static final Logger logger = LoggerFactory.getLogger(BatchService.class);
 
 	@Inject
 	private ObjectMapper objectMappper;
@@ -249,7 +253,7 @@ public class BatchService extends AbstractService<Batch> {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return null;
 	}

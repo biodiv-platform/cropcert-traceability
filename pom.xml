@@ -32,7 +32,7 @@
 
 		<swagger.version>1.5.22</swagger.version>
 		<swagger-ui.version>3.23.5</swagger-ui.version>
-		<warName>traceability</warName>
+		<warName>traceability-api</warName>
 		<!-- end Code -->
 
 		<!-- Sonar Cloud -->

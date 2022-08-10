@@ -529,8 +529,8 @@ public class LotService extends AbstractService<Lot> {
 					return new ArrayList<Lot>();
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {		
+			logger.error(e.getMessage());
 		}
 
 		return new ArrayList();

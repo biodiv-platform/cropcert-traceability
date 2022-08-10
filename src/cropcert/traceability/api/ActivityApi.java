@@ -103,7 +103,7 @@ public class ActivityApi {
 			return Response.ok().entity(activities).build();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 
 		}
 		return Response.status(Status.NOT_FOUND)

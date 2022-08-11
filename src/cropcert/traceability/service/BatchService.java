@@ -2,23 +2,28 @@ package cropcert.traceability.service;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
+import com.strandls.user.pojo.Role;
+import com.strandls.user.pojo.User;
 
+import cropcert.entities.api.UserApi;
 import cropcert.traceability.ActionStatus;
 import cropcert.traceability.BatchType;
 import cropcert.traceability.Constants;
@@ -29,10 +34,10 @@ import cropcert.traceability.model.Batch;
 import cropcert.traceability.model.BatchCreation;
 import cropcert.traceability.util.UserUtil;
 import cropcert.traceability.util.ValidationException;
-import cropcert.user.ApiException;
-import cropcert.user.api.UserApi;
 
 public class BatchService extends AbstractService<Batch> {
+
+	public static final Logger logger = LoggerFactory.getLogger(BatchService.class);
 
 	@Inject
 	private ObjectMapper objectMappper;
@@ -42,7 +47,7 @@ public class BatchService extends AbstractService<Batch> {
 
 	@Inject
 	private BatchCreationService batchCreationService;
-	
+
 	@Inject
 	private BatchDao batchDao;
 
@@ -220,32 +225,35 @@ public class BatchService extends AbstractService<Batch> {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public List getAllBatches(HttpServletRequest request, String objectList, int limit,
-			int offset) throws NumberFormatException {
+	public List getAllBatches(HttpServletRequest request, String objectList, int limit, int offset) {
 
-		Map<String, Object> userData;
+		Map<String, Object> userData = new HashMap<>();
 		try {
 			userData = userApi.getUser(request.getHeader(HttpHeaders.AUTHORIZATION));
-		} catch (ApiException e) {
-			return new ArrayList();
-		}
-		Map<String, Object> user = (Map<String, Object>) userData.get("user");
-		String role = (String) user.get("role");
-		
-		switch (role) {
-		case Permissions.ADMIN:
-		case Permissions.CO_PERSON:
-			Object[] values = objectList.split(",");
-			Long[] ccCodes = new Long[values.length];
-			for (int i = 0; i < values.length; i++) {
-				ccCodes[i] = Long.parseLong(values[i].toString());
+
+			@SuppressWarnings("unchecked")
+			Map<String, Object> user = (Map<String, Object>) userData.get("user");
+			User userRole = objectMappper.readValue(objectMappper.writeValueAsString(user), User.class);
+
+			for (Role role : userRole.getRoles()) {
+				switch (role.getAuthority()) {
+				case Permissions.ADMIN:
+				case Permissions.CO_PERSON:
+					Object[] values = objectList.split(",");
+					Long[] ccCodes = new Long[values.length];
+					for (int i = 0; i < values.length; i++) {
+						ccCodes[i] = Long.parseLong(values[i].toString());
+					}
+					return batchDao.getBatchesForCooperative(ccCodes, limit, offset);
+				case Permissions.UNION:
+					Long unionCode = Long.parseLong(userData.get("unionCode").toString());
+					return batchDao.getBatchesForUnion(unionCode, limit, offset);
+				default:
+					break;
+				}
 			}
-			return batchDao.getBatchesForCooperative(ccCodes, limit, offset);
-		case Permissions.UNION:
-			Long unionCode = Long.parseLong(userData.get("unionCode").toString());
-			return batchDao.getBatchesForUnion(unionCode, limit, offset);
-		default:
-			break;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
 		}
 		return null;
 	}

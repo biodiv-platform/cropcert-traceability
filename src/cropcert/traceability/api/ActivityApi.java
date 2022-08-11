@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -19,8 +20,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.json.JSONException;
-
-import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cropcert.traceability.model.Activity;
 import cropcert.traceability.model.Batch;
@@ -33,6 +34,8 @@ import io.swagger.annotations.ApiOperation;
 @Path("activity")
 @Api("Activity")
 public class ActivityApi {
+
+	public static final Logger logger = LoggerFactory.getLogger(ActivityApi.class);
 
 	private ActivityService activityService;
 
@@ -94,17 +97,18 @@ public class ActivityApi {
 	public Response getByLotId(@Context HttpServletRequest request, @DefaultValue("-1") @QueryParam("lotId") Long lotId,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset) {
-		List<Activity> activities;
-		if (lotId == -1) {
-			String[] properties = { "objectType" };
-			Object[] values = { Lot.class.getSimpleName() };
-			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
-		} else {
-			String[] properties = { "objectType", "objectId" };
-			Object[] values = { Lot.class.getSimpleName(), lotId };
-			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
+
+		try {
+			List<Activity> activities = activityService.getByLotId(lotId, limit, offset);
+			return Response.ok().entity(activities).build();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+
 		}
-		return Response.ok().entity(activities).build();
+		return Response.status(Status.NOT_FOUND)
+				.entity(new HashMap<String, String>().put("error", "Activity list not found")).build();
+
 	}
 
 	@Path("user")
@@ -185,7 +189,7 @@ public class ActivityApi {
 			activity = activityService.save(jsonString);
 			return Response.status(Status.CREATED).entity(activity).build();
 		} catch (IOException | JSONException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		return Response.status(Status.NO_CONTENT)

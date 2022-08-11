@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cropcert.entities.model.Cooperative;
 import cropcert.traceability.LotStatus;
-import cropcert.user.model.Cooperative;
 
 public class LotList {
 

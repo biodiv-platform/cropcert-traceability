@@ -9,7 +9,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import cropcert.traceability.LotStatus;
 import cropcert.traceability.model.Lot;

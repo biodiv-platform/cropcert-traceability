@@ -24,7 +24,9 @@ import javax.ws.rs.core.Response.Status;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.inject.Inject;
+import com.strandls.authentication_utility.filter.ValidateUser;
+
+import javax.inject.Inject;
 
 import cropcert.traceability.filter.Permissions;
 import cropcert.traceability.filter.TokenAndUserAuthenticated;
@@ -60,6 +62,17 @@ public class LotApi {
 	public Response find(@Context HttpServletRequest request, @PathParam("id") Long id) {
 		Lot lot = lotService.findById(id);
 		return Response.status(Status.CREATED).entity(lot).build();
+	}
+
+	@GET
+	@Path("show")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the information of the show page for lot", response = Map.class)
+	public Response getShowPage(@Context HttpServletRequest request,
+			@DefaultValue("-1") @QueryParam("lotId") Long lotId) throws JSONException {
+		Map<String, Object> pageInfo = lotService.getShowPage(lotId);
+		return Response.ok().entity(pageInfo).build();
 	}
 
 	@Path("all")
@@ -99,10 +112,13 @@ public class LotApi {
 		List<LotList> lots = lotService.getLotList(request, coCodes, limit, offset);
 		return Response.ok().entity(lots).build();
 	}
-	
+
 	@Path("all/coCodes")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	
+	@ValidateUser
+	
 	@ApiOperation(value = "Get all the Lots by the status", response = Lot.class, responseContainer = "List")
 	public Response getAllByCoCodes(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("coCodes") String coCodes,

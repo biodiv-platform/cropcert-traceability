@@ -3,7 +3,7 @@ package cropcert.traceability.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import cropcert.traceability.dao.BatchCreationDao;
 import cropcert.traceability.model.BatchCreation;

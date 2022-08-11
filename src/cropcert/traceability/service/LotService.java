@@ -5,9 +5,12 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
@@ -16,12 +19,20 @@ import javax.ws.rs.core.HttpHeaders;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
+import com.strandls.user.controller.UserServiceApi;
+import com.strandls.user.pojo.Role;
+import com.strandls.user.pojo.User;
 
+import cropcert.entities.ApiException;
+import cropcert.entities.api.CooperativeApi;
+import cropcert.entities.api.UserApi;
+import cropcert.entities.model.Cooperative;
 import cropcert.traceability.ActionStatus;
 import cropcert.traceability.Constants;
 import cropcert.traceability.LotStatus;
@@ -38,12 +49,10 @@ import cropcert.traceability.model.LotCreation;
 import cropcert.traceability.model.LotList;
 import cropcert.traceability.model.MillingActionData;
 import cropcert.traceability.util.UserUtil;
-import cropcert.user.ApiException;
-import cropcert.user.api.CooperativeApi;
-import cropcert.user.api.UserApi;
-import cropcert.user.model.Cooperative;
 
 public class LotService extends AbstractService<Lot> {
+
+	public static final Logger logger = LoggerFactory.getLogger(LotService.class);
 
 	@Inject
 	private ObjectMapper objectMappper;
@@ -61,7 +70,13 @@ public class LotService extends AbstractService<Lot> {
 	private CuppingService cuppingService;
 
 	@Inject
+	private QualityReportService qualityService;
+
+	@Inject
 	private FactoryReportService factoryReportService;
+
+	@Inject
+	private UserServiceApi userServiceApi;
 
 	@Inject
 	private UserApi userApi;
@@ -84,10 +99,11 @@ public class LotService extends AbstractService<Lot> {
 
 			Long coCode = longValues[i];
 			Cooperative cooperative = null;
+
 			try {
 				cooperative = cooperativeApi.findByCode(coCode);
 			} catch (ApiException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 
 			cooperatives.put(coCode, cooperative);
@@ -108,6 +124,35 @@ public class LotService extends AbstractService<Lot> {
 			lotLists.add(lotList);
 		}
 		return lotLists;
+	}
+
+	public Map<String, Object> getShowPage(Long lotId) {
+		Map<String, Object> pageInfo = new HashMap<String, Object>();
+		try {
+			Lot lot = dao.findById(lotId);
+			pageInfo.put("lot", lot);
+			List<Activity> activities = activityService.getByLotId(lotId, -1, -1);
+			pageInfo.put("activities", activities);
+			Set<String> userIds = new HashSet<String>();
+			for (Activity activity : activities) {
+				userIds.add(activity.getUserId());
+			}
+
+			List<User> users = new ArrayList<User>();
+			for (String id : userIds) {
+
+				User user = userServiceApi.getUser(id);
+				users.add(user);
+
+			}
+			pageInfo.put("users", users);
+			pageInfo.put("cupping_report", cuppingService.getByPropertyWithCondtion("lot.id", lotId, "=", -1, -1));
+			pageInfo.put("quality_report", qualityService.getByPropertyWithCondtion("lotId", lotId, "=", -1, -1));
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+
+		return pageInfo;
 	}
 
 	public Map<String, Object> saveInBulk(String jsonString, HttpServletRequest request)
@@ -455,34 +500,40 @@ public class LotService extends AbstractService<Lot> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Lot> getByCoCodes(HttpServletRequest request, String coCodes, Integer limit, Integer offset) {
 		Map<String, Object> userData;
+
 		try {
 			userData = userApi.getUser(request.getHeader(HttpHeaders.AUTHORIZATION));
-		} catch (ApiException e) {
-			return new ArrayList<Lot>();
-		}
-		Map<String, Object> user = (Map<String, Object>) userData.get("user");
-		String role = (String) user.get("role");
 
-		switch (role) {
-		case Permissions.CO_PERSON:
-			Long coCode = Long.parseLong(userData.get("coCode").toString());
-			return dao.getByPropertyWithCondtion("coCode", coCode, "=", limit, offset, "createdOn desc");
-		case Permissions.UNION:
-			Long unionCode = Long.parseLong(userData.get("unionCode").toString());
-			return dao.getByPropertyWithCondtion("unionCode", unionCode, "=", limit, offset, "createdOn desc");
-		case Permissions.ADMIN:
-			Object[] values = coCodes.split(",");
-			Long[] longValues = new Long[values.length];
-			for (int i = 0; i < values.length; i++) {
-				longValues[i] = Long.parseLong(values[i].toString());
+			Map<String, Object> user = (Map<String, Object>) userData.get("user");
+			User userRole = objectMappper.readValue(objectMappper.writeValueAsString(user), User.class);
+
+			for (Role role : userRole.getRoles()) {
+				switch (role.getAuthority()) {
+				case Permissions.CO_PERSON:
+					Long coCode = Long.parseLong(userData.get("coCode").toString());
+					return dao.getByPropertyWithCondtion("coCode", coCode, "=", limit, offset, "createdOn desc");
+				case Permissions.UNION:
+					Long unionCode = Long.parseLong(userData.get("unionCode").toString());
+					return dao.getByPropertyWithCondtion("unionCode", unionCode, "=", limit, offset, "createdOn desc");
+				case Permissions.ADMIN:
+					Object[] values = coCodes.split(",");
+					Long[] longValues = new Long[values.length];
+					for (int i = 0; i < values.length; i++) {
+						longValues[i] = Long.parseLong(values[i].toString());
+					}
+					return dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
+				default:
+					return new ArrayList<Lot>();
+				}
 			}
-			return dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
-		default:
-			return new ArrayList<Lot>();
+		} catch (Exception e) {		
+			logger.error(e.getMessage());
 		}
+
+		return new ArrayList();
 
 	}
 

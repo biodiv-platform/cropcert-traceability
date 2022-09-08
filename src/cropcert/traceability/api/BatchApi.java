@@ -22,7 +22,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.json.JSONException;
 
-import com.google.inject.Inject;
+import com.strandls.authentication_utility.filter.ValidateUser;
+
+import javax.inject.Inject;
 
 import cropcert.traceability.filter.Permissions;
 import cropcert.traceability.filter.TokenAndUserAuthenticated;
@@ -76,6 +78,10 @@ public class BatchApi {
 	@Path("all/cc")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	
+	
+	@ValidateUser
+	
 	@ApiOperation(value = "Get list of batches by cc codes", response = Batch.class, responseContainer = "List")
 	public Response getAllByCcCodes(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("ccCodes") String ccCodes,

@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum BatchType {
 
-	@XmlEnumValue("Dry")
+	@XmlEnumValue("DRY")
 	DRY("DRY"),
-	@XmlEnumValue("Wet")
+	@XmlEnumValue("WET")
 	WET("WET");
 	
 	private String value;

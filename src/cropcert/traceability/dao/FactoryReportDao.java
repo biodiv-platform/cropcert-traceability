@@ -3,7 +3,7 @@ package cropcert.traceability.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import cropcert.traceability.model.FactoryReport;
 

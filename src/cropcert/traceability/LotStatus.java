@@ -9,16 +9,16 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum LotStatus {
 	
-	@XmlEnumValue("AtCollectionCenter")
-	AT_COLLECTION_CENTER("AtCollectionCenter"),
-	@XmlEnumValue("AtCoOperative")
-	AT_CO_OPERATIVE("AtCoOperative"),
-	@XmlEnumValue("InTransport")
-	IN_TRANSPORT("InTransport"),
-	@XmlEnumValue("AtFactory")
-	AT_FACTORY("AtFactory"),
-	@XmlEnumValue("AtUnion")
-	AT_UNION("AtUnion");
+	@XmlEnumValue("AT_COLLECTION_CENTER")
+	AT_COLLECTION_CENTER("AT_COLLECTION_CENTER"),
+	@XmlEnumValue("AT_CO_OPERATIVE")
+	AT_CO_OPERATIVE("AT_CO_OPERATIVE"),
+	@XmlEnumValue("IN_TRANSPORT")
+	IN_TRANSPORT("IN_TRANSPORT"),
+	@XmlEnumValue("AT_FACTORY")
+	AT_FACTORY("AT_FACTORY"),
+	@XmlEnumValue("AT_UNION")
+	AT_UNION("AT_UNION");
 	
 	private String value;
 	

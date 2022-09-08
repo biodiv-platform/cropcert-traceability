@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.json.JSONException;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import cropcert.traceability.filter.Permissions;
 import cropcert.traceability.filter.TokenAndUserAuthenticated;
@@ -76,7 +76,7 @@ public class CuppingApi {
 	public Response getByLotId(@Context HttpServletRequest request, @DefaultValue("-1") @PathParam("lotId") Long lotId,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset) {
-		List<Cupping> cuppings = cuppingService.getByPropertyWithCondtion("lot.id", lotId, "=", limit, offset);;
+		List<Cupping> cuppings = cuppingService.getByPropertyWithCondtion("lot.id", lotId, "=", limit, offset);
 		return Response.ok().entity(cuppings).build();
 	}
 

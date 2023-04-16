@@ -516,8 +516,6 @@ public class LotService extends AbstractService<Lot> {
 					Long coCode = Long.parseLong(userData.get("coCode").toString());
 					return dao.getByPropertyWithCondtion("coCode", coCode, "=", limit, offset, "createdOn desc");
 				case Permissions.UNION:
-					Long unionCode = Long.parseLong(userData.get("unionCode").toString());
-					return dao.getByPropertyWithCondtion("unionCode", unionCode, "=", limit, offset, "createdOn desc");
 				case Permissions.ADMIN:
 					Object[] values = coCodes.split(",");
 					Long[] longValues = new Long[values.length];
@@ -529,7 +527,7 @@ public class LotService extends AbstractService<Lot> {
 					return new ArrayList<Lot>();
 				}
 			}
-		} catch (Exception e) {		
+		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 

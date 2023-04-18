@@ -525,11 +525,9 @@ public class LotService extends AbstractService<Lot> {
 						longValues[i] = Long.parseLong(values[i].toString());
 					}
 					return dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
-				default:
-					return new ArrayList<Lot>();
 				}
 			}
-		} catch (Exception e) {		
+		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 

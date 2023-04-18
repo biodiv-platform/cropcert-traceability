@@ -155,25 +155,21 @@ public abstract class AbstractDao<T, K extends Serializable> {
 	}
 
 	public List<T> getByPropertyfromArray(String property, Object[] values, int limit, int offset, String orderBy) {
-		if (orderBy == null || "".equals(orderBy))
-			orderBy = "id";
-		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + "where t." + property + " in (:values) and "
-				+ " ( isDeleted is null or isDeleted = " + false + " ) " + " order by " + orderBy;
-		Session session = sessionFactory.openSession();
-		Query query = session.createQuery(queryStr);
-		query.setParameterList("values", values);
+		String orderByClause = (orderBy == null || orderBy.isEmpty()) ? "id" : orderBy;
+		try (Session session = sessionFactory.openSession()) {
+			String queryString = "FROM " + daoType.getSimpleName() + " t " + "WHERE t." + property
+					+ " IN (:values) AND (t.isDeleted IS NULL OR t.isDeleted = false) " + "ORDER BY " + orderByClause;
+			Query query = session.createQuery(queryString);
+			query.setParameterList("values", values);
 
-		List<T> resultList = new ArrayList<T>();
-		try {
-			if (limit > 0 && offset >= 0)
-				query = query.setFirstResult(offset).setMaxResults(limit);
-			resultList = query.getResultList();
+			if (limit > 0 && offset >= 0) {
+				query.setFirstResult(offset).setMaxResults(limit);
+			}
 
+			return query.getResultList();
 		} catch (NoResultException e) {
 			throw e;
 		}
-		session.close();
-		return resultList;
 	}
 
 	public List<T> getByMultiplePropertyWithCondtion(String[] properties, Object[] values, Integer limit,

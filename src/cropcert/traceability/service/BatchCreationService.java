@@ -20,7 +20,7 @@ public class BatchCreationService extends AbstractService<BatchCreation> {
 		
 		List<BatchCreation> batchCreations = getByPropertyWithCondtion("batchId", batchId, "=", limit, offset);
 		
-		List<Long> farmers = new ArrayList<Long>();
+		List<Long> farmers = new ArrayList<>();
 		for(int i = 0; i<batchCreations.size(); i++) {
 			BatchCreation batchCreation = batchCreations.get(i);
 			farmers.add(batchCreation.getFarmerId());

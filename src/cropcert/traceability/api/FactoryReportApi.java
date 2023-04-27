@@ -40,6 +40,8 @@ public class FactoryReportApi {
 
 	private FactoryReportService factoryReportService;
 
+	private static final String ERROR = "error";
+
 	@Inject
 	public FactoryReportApi(FactoryReportService factoryReportService) {
 		this.factoryReportService = factoryReportService;
@@ -95,13 +97,13 @@ public class FactoryReportApi {
 		} catch (ValidationException e) {
 			e.printStackTrace();
 			return Response.status(Status.BAD_REQUEST)
-					.entity(new HashMap<String, String>().put("error", "Defects should not be more than grading"))
+					.entity(new HashMap<String, String>().put(ERROR, "Defects should not be more than grading"))
 					.build();
 		}
 		return Response.status(Status.NO_CONTENT)
-				.entity(new HashMap<String, String>().put("error", "Quality report save failed")).build();
+				.entity(new HashMap<String, String>().put(ERROR, "Quality report save failed")).build();
 	}
-	
+
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -119,10 +121,10 @@ public class FactoryReportApi {
 		} catch (ValidationException e) {
 			e.printStackTrace();
 			return Response.status(Status.BAD_REQUEST)
-					.entity(new HashMap<String, String>().put("error", "Defects should not be more than grading"))
+					.entity(new HashMap<String, String>().put(ERROR, "Defects should not be more than grading"))
 					.build();
 		}
 		return Response.status(Status.NO_CONTENT)
-				.entity(new HashMap<String, String>().put("error", "Quality report save failed")).build();
+				.entity(new HashMap<String, String>().put(ERROR, "Quality report save failed")).build();
 	}
 }

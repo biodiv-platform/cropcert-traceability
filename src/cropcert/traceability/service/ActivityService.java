@@ -5,10 +5,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
-import org.json.JSONException;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.inject.Inject;
 
@@ -26,8 +22,7 @@ public class ActivityService extends AbstractService<Activity> {
 		super(dao);
 	}
 
-	public Activity save(String jsonString)
-			throws JsonParseException, JsonMappingException, IOException, JSONException {
+	public Activity save(String jsonString) throws IOException {
 		Activity batch = objectMappper.readValue(jsonString, Activity.class);
 		batch.setIsDeleted(false);
 

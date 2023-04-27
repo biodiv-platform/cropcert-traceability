@@ -45,16 +45,16 @@ public class LotList {
 	}
 
 	private Set<Float> getQualityScore(Set<Cupping> cuppings) {
-		Set<Float> Scores = new HashSet<>();
+		Set<Float> scores = new HashSet<>();
 		if (cuppings == null || cuppings.isEmpty())
-			return Scores;
+			return scores;
 		for (Cupping cupping : cuppings) {
 			float score = cupping.getAcidity() + cupping.getAfterTaste() + cupping.getBalance() + cupping.getBody()
 					+ cupping.getCleanCup() - cupping.getFault() + cupping.getFlavour() + cupping.getFragranceAroma()
 					+ cupping.getOverAll() + cupping.getSweetness() - cupping.getTaint() + cupping.getUniformity();
-			Scores.add(score);
+			scores.add(score);
 		}
-		return Scores;
+		return scores;
 	}
 
 	public Long getId() {

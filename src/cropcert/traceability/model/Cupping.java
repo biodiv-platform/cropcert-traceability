@@ -24,7 +24,7 @@ import cropcert.traceability.ActionStatus;
 import io.swagger.annotations.ApiModel;
 
 @Entity
-@Table(name = "report_cupping")//, uniqueConstraints = @UniqueConstraint(columnNames = {"lot_id", "cupper"}))
+@Table(name = "report_cupping") // , uniqueConstraints = @UniqueConstraint(columnNames = {"lot_id", "cupper"}))
 @XmlRootElement
 @JsonIgnoreProperties
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -41,77 +41,74 @@ public class Cupping implements Serializable {
 	@SequenceGenerator(name = "cupping_id_generator", sequenceName = "cupping_id_seq", allocationSize = 50)
 	@Column(name = "id", updatable = false, nullable = false)
 	private Long id;
-	
-	/*
-	 * @Column(name = "lot_id") private Long lotId;
-	 */
+
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.EAGER, targetEntity = Lot.class)
 	private Lot lot;
-	
+
 	@Column(name = "lot_name")
-    private String lotName;
-	
+	private String lotName;
+
 	@Column(name = "cupping_date")
 	private Date date;
-	
+
 	@Column(name = "time_stamp")
 	private Timestamp timestamp;
-	
+
 	@Column(name = "cfa")
 	private String cfa;
-	
+
 	@Column(name = "cc_name")
 	private String ccName;
 
 	@Column(name = "cupper", nullable = false)
 	private String cupper;
-	
+
 	@Column(name = "sample_type")
 	private String sampleType;
-	
+
 	@Column(name = "fragrance_aroma")
 	private float fragranceAroma;
-	
+
 	@Column(name = "flavour")
 	private float flavour;
-	
+
 	@Column(name = "acidity")
 	private float acidity;
-	
+
 	@Column(name = "body")
 	private float body;
-	
+
 	@Column(name = "after_taste")
 	private float afterTaste;
-	
+
 	@Column(name = "balance")
 	private float balance;
-	
+
 	@Column(name = "sweetness")
 	private float sweetness;
-	
+
 	@Column(name = "uniformity")
 	private float uniformity;
-	
+
 	@Column(name = "clean_cup")
 	private float cleanCup;
-	
+
 	@Column(name = "overAll")
 	private float overAll;
-	
+
 	@Column(name = "taint")
 	private float taint;
-	
+
 	@Column(name = "fault")
 	private float fault;
-	
+
 	@Column(name = "notes")
 	private String notes;
-	
+
 	@Column(name = "status")
 	private ActionStatus status = ActionStatus.NOTAPPLICABLE;
-	
+
 	@Column(name = "is_deleted")
 	private Boolean isDeleted;
 
@@ -122,19 +119,19 @@ public class Cupping implements Serializable {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
+
 	public Lot getLot() {
 		return lot;
 	}
-	
+
 	public void setLot(Lot lot) {
 		this.lot = lot;
 	}
-	
+
 	public String getLotName() {
 		return lotName;
 	}
-	
+
 	public void setLotName(String lotName) {
 		this.lotName = lotName;
 	}
@@ -166,11 +163,11 @@ public class Cupping implements Serializable {
 	public String getCcName() {
 		return ccName;
 	}
-	
+
 	public void setCcName(String ccName) {
 		this.ccName = ccName;
 	}
-	
+
 	public String getCupper() {
 		return cupper;
 	}
@@ -290,10 +287,11 @@ public class Cupping implements Serializable {
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
-	
+
 	public ActionStatus getStatus() {
 		return status;
 	}
+
 	public void setStatus(ActionStatus status) {
 		this.status = status;
 	}

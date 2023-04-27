@@ -2,6 +2,7 @@ package cropcert.traceability.service;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +18,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
@@ -60,7 +59,7 @@ public class BatchService extends AbstractService<Batch> {
 	}
 
 	public Batch save(String jsonString, HttpServletRequest request)
-			throws JsonParseException, JsonMappingException, IOException, JSONException, ValidationException {
+			throws IOException, JSONException, ValidationException {
 		JSONObject jsonObject = new JSONObject(jsonString);
 
 		JSONArray farmerContributions = (JSONArray) jsonObject.remove("farmerContributions");
@@ -110,13 +109,12 @@ public class BatchService extends AbstractService<Batch> {
 		 */
 		Activity activity = new Activity(batch.getClass().getSimpleName(), batch.getId(), userId, createdOn,
 				Constants.BATCH_CREATION, batch.getBatchName());
-		activity = activityService.save(activity);
+		activityService.save(activity);
 
 		return batch;
 	}
 
 	private void batchValidation(Batch batch, JSONArray farmerContributions) throws JSONException, ValidationException {
-		// TODO Auto-generated method stub
 		float batchWeight = batch.getQuantity();
 
 		float contributionWeight = 0;
@@ -206,7 +204,7 @@ public class BatchService extends AbstractService<Batch> {
 		batch.setDryingEndTime(dryingEndTime);
 		batch.setPerchmentQuantity(perchmentQuantity);
 
-		if (jsonObject.has(Constants.FINALIZE_BATCH) && jsonObject.getBoolean(Constants.FINALIZE_BATCH) == true) {
+		if (jsonObject.has(Constants.FINALIZE_BATCH) && jsonObject.getBoolean(Constants.FINALIZE_BATCH)) {
 
 			if (batch.getPerchmentQuantity() == null || batch.getPerchmentQuantity() == 0) {
 				throw new ValidationException("Update the perchment quantity");
@@ -253,7 +251,7 @@ public class BatchService extends AbstractService<Batch> {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 }

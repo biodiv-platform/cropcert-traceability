@@ -97,8 +97,8 @@ public class CuppingApi {
 		return Response.status(Status.NO_CONTENT)
 				.entity(new HashMap<String, String>().put("error", "Cupping report failed")).build();
 	}
-        
-    @PUT
+
+	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Update the report", response = Map.class)
@@ -109,9 +109,7 @@ public class CuppingApi {
 		try {
 			Map<String, Object> result = cuppingService.update(request, jsonString);
 			return Response.status(Status.ACCEPTED).entity(result).build();
-		} catch (IOException | ValidationException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
+		} catch (IOException | ValidationException | JSONException e) {
 			e.printStackTrace();
 		}
 		return Response.status(Status.BAD_REQUEST)

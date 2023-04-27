@@ -22,8 +22,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.Role;
@@ -88,6 +86,16 @@ public class LotService extends AbstractService<Lot> {
 	public LotService(LotDao dao) {
 		super(dao);
 	}
+	
+	private static final String LOT_NOT_FOUND = "Lot not found";
+	
+	private static final String CO_CODE = "coCode";
+	private static final String LOT_ID = "lotId";
+	private static final String STATUS_ALREADY_DONE ="Status is already done";
+	private static final String CREATED_ON_DESC ="createdOn desc";
+
+
+
 
 	public List<LotList> getLotList(HttpServletRequest request, String coCodes, Integer limit, Integer offset) {
 
@@ -108,13 +116,13 @@ public class LotService extends AbstractService<Lot> {
 
 			cooperatives.put(coCode, cooperative);
 		}
-		List<Lot> lots = dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
+		List<Lot> lots = dao.getByPropertyfromArray(CO_CODE, longValues, limit, offset, CREATED_ON_DESC);
 
 		List<LotList> lotLists = new ArrayList<>();
 		for (Lot lot : lots) {
 			FactoryReport factoryReport = null;
 			try {
-				factoryReport = factoryReportService.findByPropertyWithCondtion("lotId", lot.getId(), "=");
+				factoryReport = factoryReportService.findByPropertyWithCondtion(LOT_ID, lot.getId(), "=");
 			} catch (NoResultException e) {
 				// Don't do anything here.
 			}
@@ -127,18 +135,18 @@ public class LotService extends AbstractService<Lot> {
 	}
 
 	public Map<String, Object> getShowPage(Long lotId) {
-		Map<String, Object> pageInfo = new HashMap<String, Object>();
+		Map<String, Object> pageInfo = new HashMap<>();
 		try {
 			Lot lot = dao.findById(lotId);
 			pageInfo.put("lot", lot);
 			List<Activity> activities = activityService.getByLotId(lotId, -1, -1);
 			pageInfo.put("activities", activities);
-			Set<String> userIds = new HashSet<String>();
+			Set<String> userIds = new HashSet<>();
 			for (Activity activity : activities) {
 				userIds.add(activity.getUserId());
 			}
 
-			List<User> users = new ArrayList<User>();
+			List<User> users = new ArrayList<>();
 			for (String id : userIds) {
 
 				User user = userServiceApi.getUser(id);
@@ -147,7 +155,7 @@ public class LotService extends AbstractService<Lot> {
 			}
 			pageInfo.put("users", users);
 			pageInfo.put("cupping_report", cuppingService.getByPropertyWithCondtion("lot.id", lotId, "=", -1, -1));
-			pageInfo.put("quality_report", qualityService.getByPropertyWithCondtion("lotId", lotId, "=", -1, -1));
+			pageInfo.put("quality_report", qualityService.getByPropertyWithCondtion(LOT_ID, lotId, "=", -1, -1));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -156,7 +164,7 @@ public class LotService extends AbstractService<Lot> {
 	}
 
 	public Map<String, Object> saveInBulk(String jsonString, HttpServletRequest request)
-			throws JsonParseException, JsonMappingException, IOException, JSONException {
+			throws IOException, JSONException {
 
 		Map<String, Object> result = new HashMap<>();
 		JSONObject jsonObject = new JSONObject(jsonString);
@@ -182,7 +190,7 @@ public class LotService extends AbstractService<Lot> {
 
 		String userId = UserUtil.getUserDetails(request).getId();
 
-		List<Batch> batches = new ArrayList<Batch>();
+		List<Batch> batches = new ArrayList<>();
 
 		// Add traceability for the lot creation.
 		for (int i = 0; i < jsonArray.length(); i++) {
@@ -220,16 +228,16 @@ public class LotService extends AbstractService<Lot> {
 		return result;
 	}
 
-	public Lot updateCoopAction(CoopActionData coopActionData, HttpServletRequest request) throws JSONException {
+	public Lot updateCoopAction(CoopActionData coopActionData, HttpServletRequest request) {
 
 		Long id = coopActionData.getId();
 		Lot lot = findById(id);
 
 		if (lot == null)
-			throw new ValidationException("Lot not found");
+			throw new ValidationException(LOT_NOT_FOUND);
 
 		if (ActionStatus.DONE.equals(lot.getCoopStatus()))
-			throw new ValidationException("Status is already done");
+			throw new ValidationException(STATUS_ALREADY_DONE);
 
 		String userId = UserUtil.getUserDetails(request).getId();
 		Timestamp timestamp = new Timestamp(new Date().getTime());
@@ -293,10 +301,10 @@ public class LotService extends AbstractService<Lot> {
 		Lot lot = findById(id);
 
 		if (lot == null)
-			throw new ValidationException("Lot not found");
+			throw new ValidationException(LOT_NOT_FOUND);
 
 		if (ActionStatus.DONE.equals(lot.getMillingStatus()))
-			throw new ValidationException("Status is already done");
+			throw new ValidationException(STATUS_ALREADY_DONE);
 
 		String userId = UserUtil.getUserDetails(request).getId();
 		Timestamp timestamp = new Timestamp(new Date().getTime());
@@ -406,10 +414,10 @@ public class LotService extends AbstractService<Lot> {
 		Lot lot = findById(id);
 
 		if (lot == null)
-			throw new ValidationException("Lot not found");
+			throw new ValidationException(LOT_NOT_FOUND);
 
 		if (ActionStatus.DONE.equals(lot.getGrnStatus()))
-			throw new ValidationException("Status is already done");
+			throw new ValidationException(STATUS_ALREADY_DONE);
 
 		Timestamp grnTimestamp = lot.getGrnTimestamp();
 		String grnNumber = lot.getGrnNumber();
@@ -513,18 +521,18 @@ public class LotService extends AbstractService<Lot> {
 			for (Role role : userRole.getRoles()) {
 				switch (role.getAuthority()) {
 				case Permissions.CO_PERSON:
-					Long coCode = Long.parseLong(userData.get("coCode").toString());
-					return dao.getByPropertyWithCondtion("coCode", coCode, "=", limit, offset, "createdOn desc");
+					Long coCode = Long.parseLong(userData.get(CO_CODE).toString());
+					return dao.getByPropertyWithCondtion(CO_CODE, coCode, "=", limit, offset, CREATED_ON_DESC);
 				case Permissions.UNION:
 					Long unionCode = Long.parseLong(userData.get("unionCode").toString());
-					return dao.getByPropertyWithCondtion("unionCode", unionCode, "=", limit, offset, "createdOn desc");
+					return dao.getByPropertyWithCondtion("unionCode", unionCode, "=", limit, offset, CREATED_ON_DESC);
 				case Permissions.ADMIN:
 					Object[] values = coCodes.split(",");
 					Long[] longValues = new Long[values.length];
 					for (int i = 0; i < values.length; i++) {
 						longValues[i] = Long.parseLong(values[i].toString());
 					}
-					return dao.getByPropertyfromArray("coCode", longValues, limit, offset, "createdOn desc");
+					return dao.getByPropertyfromArray(CO_CODE, longValues, limit, offset, CREATED_ON_DESC);
 				}
 			}
 		} catch (Exception e) {
@@ -542,7 +550,7 @@ public class LotService extends AbstractService<Lot> {
 		for (int i = 0; i < values.length; i++) {
 			longValues[i] = Long.parseLong(values[i].toString());
 		}
-		return ((LotDao) dao).getByPropertyfromArray("coCode", longValues, lotStatus, limit, offset);
+		return ((LotDao) dao).getByPropertyfromArray(CO_CODE, longValues, lotStatus, limit, offset);
 	}
 
 	public List<Long> getLotOrigins(String lotId) {
@@ -563,7 +571,7 @@ public class LotService extends AbstractService<Lot> {
 		List<Map<String, Object>> lotWithCuppings = new ArrayList<>();
 		for (Lot lot : lots) {
 			Map<String, Object> lotWithCupping = new HashMap<>();
-			List<Cupping> cuppings = cuppingService.getByPropertyWithCondtion("lotId", lot.getId(), "=", -1, -1);
+			List<Cupping> cuppings = cuppingService.getByPropertyWithCondtion(LOT_ID, lot.getId(), "=", -1, -1);
 			lotWithCupping.put("lot", lot);
 			lotWithCupping.put("cuppings", cuppings);
 			lotWithCuppings.add(lotWithCupping);

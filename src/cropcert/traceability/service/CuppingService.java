@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.inject.Inject;
 
@@ -26,6 +24,8 @@ import cropcert.traceability.util.UserUtil;
 import cropcert.traceability.util.ValidationException;
 
 public class CuppingService extends AbstractService<Cupping> {
+
+	private static final String LOT_ID = "lotId";
 
 	@Inject
 	private ObjectMapper objectMappper;
@@ -41,12 +41,11 @@ public class CuppingService extends AbstractService<Cupping> {
 		super(dao);
 	}
 
-	public Map<String, Object> save(HttpServletRequest request, String jsonString)
-			throws JsonParseException, JsonMappingException, IOException, JSONException {
+	public Map<String, Object> save(HttpServletRequest request, String jsonString) throws IOException, JSONException {
 
 		JSONObject jsonObject = new JSONObject(jsonString);
-		Long lotId = jsonObject.getLong("lotId");
-		jsonObject.remove("lotId");
+		Long lotId = jsonObject.getLong(LOT_ID);
+		jsonObject.remove(LOT_ID);
 
 		Lot lot = lotService.findById(lotId);
 
@@ -73,9 +72,9 @@ public class CuppingService extends AbstractService<Cupping> {
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		Activity activity = new Activity(cupping.getClass().getSimpleName(), cupping.getId(), userId, timestamp,
 				Constants.CUPPING, cupping.getId().toString());
-		activity = activityService.save(activity);
+		activityService.save(activity);
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		result.put("lot", lot);
 		result.put("cupping", cupping);
 
@@ -83,11 +82,11 @@ public class CuppingService extends AbstractService<Cupping> {
 	}
 
 	public Map<String, Object> update(HttpServletRequest request, String jsonString)
-			throws JsonParseException, JsonMappingException, IOException, JSONException, ValidationException {
+			throws IOException, JSONException, ValidationException {
 
 		JSONObject jsonObject = new JSONObject(jsonString);
-		Long lotId = jsonObject.getLong("lotId");
-		jsonObject.remove("lotId");
+		Long lotId = jsonObject.getLong(LOT_ID);
+		jsonObject.remove(LOT_ID);
 
 		ActionStatus status = ActionStatus.EDIT;
 		if (jsonObject.has(Constants.FINALIZE_CUPPING_STATUS) && !jsonObject.isNull(Constants.FINALIZE_CUPPING_STATUS)
@@ -97,9 +96,9 @@ public class CuppingService extends AbstractService<Cupping> {
 
 		jsonObject.remove(Constants.FINALIZE_CUPPING_STATUS);
 		Cupping cupping = objectMappper.readValue(jsonObject.toString(), Cupping.class);
-                if(ActionStatus.DONE.equals(cupping.getStatus()))
-                    throw new ValidationException("Can't modify already completed cupping");
-                Lot lot = lotService.findById(lotId);
+		if (ActionStatus.DONE.equals(cupping.getStatus()))
+			throw new ValidationException("Can't modify already completed cupping");
+		Lot lot = lotService.findById(lotId);
 		cupping.setStatus(status);
 		cupping.setLot(lot);
 		cupping = update(cupping);
@@ -112,9 +111,9 @@ public class CuppingService extends AbstractService<Cupping> {
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		Activity activity = new Activity(cupping.getClass().getSimpleName(), cupping.getId(), userId, timestamp,
 				Constants.CUPPING, cupping.getId().toString());
-		activity = activityService.save(activity);
+		activityService.save(activity);
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		result.put("lot", lot);
 		result.put("cupping", cupping);
 

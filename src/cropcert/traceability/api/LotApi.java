@@ -49,6 +49,8 @@ public class LotApi {
 
 	private LotService lotService;
 
+	private static final String ERROR = "error";
+
 	@Inject
 	public LotApi(LotService batchProductionService) {
 		this.lotService = batchProductionService;
@@ -70,7 +72,7 @@ public class LotApi {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the information of the show page for lot", response = Map.class)
 	public Response getShowPage(@Context HttpServletRequest request,
-			@DefaultValue("-1") @QueryParam("lotId") Long lotId) throws JSONException {
+			@DefaultValue("-1") @QueryParam("lotId") Long lotId) {
 		Map<String, Object> pageInfo = lotService.getShowPage(lotId);
 		return Response.ok().entity(pageInfo).build();
 	}
@@ -116,9 +118,9 @@ public class LotApi {
 	@Path("all/coCodes")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	
+
 	@ValidateUser
-	
+
 	@ApiOperation(value = "Get all the Lots by the status", response = Lot.class, responseContainer = "List")
 	public Response getAllByCoCodes(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("coCodes") String coCodes,
@@ -178,7 +180,7 @@ public class LotApi {
 			e.printStackTrace();
 		}
 		return Response.status(Status.NO_CONTENT)
-				.entity(new HashMap<String, String>().put("error", "Lot creation failed")).build();
+				.entity(new HashMap<String, String>().put(ERROR, "Lot creation failed")).build();
 	}
 
 	@PUT
@@ -195,9 +197,9 @@ public class LotApi {
 		try {
 			lot = lotService.updateCoopAction(coopActionData, request);
 			return Response.ok().entity(lot).build();
-		} catch (JSONException | ValidationException e) {
-			return Response.status(Status.BAD_REQUEST)
-					.entity(new HashMap<String, String>().put("error", e.getMessage())).build();
+		} catch (ValidationException e) {
+			return Response.status(Status.BAD_REQUEST).entity(new HashMap<String, String>().put(ERROR, e.getMessage()))
+					.build();
 		}
 	}
 
@@ -216,8 +218,8 @@ public class LotApi {
 			lot = lotService.updateMillingAction(millingActionData, request);
 			return Response.ok().entity(lot).build();
 		} catch (ValidationException e) {
-			return Response.status(Status.BAD_REQUEST)
-					.entity(new HashMap<String, String>().put("error", e.getMessage())).build();
+			return Response.status(Status.BAD_REQUEST).entity(new HashMap<String, String>().put(ERROR, e.getMessage()))
+					.build();
 		}
 	}
 
@@ -234,7 +236,7 @@ public class LotApi {
 		try {
 			if (lotService.checkForDuplicate(grnNumberData)) {
 				JSONObject jo = new JSONObject();
-				jo.put("error", "Duplicate GRN Number");
+				jo.put(ERROR, "Duplicate GRN Number");
 				return Response.status(Status.PRECONDITION_FAILED).entity(jo.toString()).build();
 			}
 			Lot response = lotService.updateGRNNumer(grnNumberData, request);
@@ -243,6 +245,6 @@ public class LotApi {
 			e.printStackTrace();
 		}
 		return Response.status(Status.NO_CONTENT)
-				.entity(new HashMap<String, String>().put("error", "GNR updation for lot has failed")).build();
+				.entity(new HashMap<String, String>().put(ERROR, "GNR updation for lot has failed")).build();
 	}
 }

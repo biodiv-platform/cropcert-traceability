@@ -2,12 +2,15 @@ package cropcert.traceability.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
 import cropcert.traceability.model.Cupping;
 
-public class CuppingDao extends AbstractDao<Cupping, Long>{
+public class CuppingDao extends AbstractDao<Cupping, Long> {
+	private static final Logger logger = LoggerFactory.getLogger(CuppingDao.class);
 
 	@Inject
 	protected CuppingDao(SessionFactory sessionFactory) {
@@ -21,7 +24,7 @@ public class CuppingDao extends AbstractDao<Cupping, Long>{
 		try {
 			entity = session.get(Cupping.class, id);
 		} catch (Exception e) {
-			throw e;
+			logger.error(e.getMessage());
 		} finally {
 			session.close();
 		}

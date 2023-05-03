@@ -32,7 +32,7 @@ public class BatchCreation {
     private Long farmerId;
     
     @Column(name = "batch_id")
-    private Long BatchId;
+    private Long batchId;
     
     @Column(name = "weight")
     private float weight;
@@ -66,11 +66,11 @@ public class BatchCreation {
 	}
 
 	public Long getBatchId() {
-		return BatchId;
+		return batchId;
 	}
 
 	public void setBatchId(Long batchId) {
-		BatchId = batchId;
+		this.batchId = batchId;
 	}
 
 	public float getWeight() {

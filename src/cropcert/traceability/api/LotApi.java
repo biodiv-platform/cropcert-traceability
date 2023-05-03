@@ -111,7 +111,7 @@ public class LotApi {
 			@DefaultValue("-1") @QueryParam("coCodes") String coCodes,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset) {
-		List<LotList> lots = lotService.getLotList(request, coCodes, limit, offset);
+		List<LotList> lots = lotService.getLotList(coCodes, limit, offset);
 		return Response.ok().entity(lots).build();
 	}
 

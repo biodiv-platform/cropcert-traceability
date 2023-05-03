@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import cropcert.entities.model.Cooperative;
+import cropcert.entities.model.CooperativeEntity;
 import cropcert.traceability.LotStatus;
 
 public class LotList {
@@ -24,7 +24,7 @@ public class LotList {
 	private String manager;
 	private String contact;
 
-	public LotList(Lot lot, FactoryReport factoryReport, Cooperative cooperative) {
+	public LotList(Lot lot, FactoryReport factoryReport, CooperativeEntity cooperative) {
 		this.id = lot.getId();
 		this.lotName = lot.getLotName();
 		this.coCode = lot.getCoCode();

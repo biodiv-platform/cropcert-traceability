@@ -27,10 +27,9 @@ import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 
-import cropcert.entities.ApiException;
-import cropcert.entities.api.CooperativeApi;
 import cropcert.entities.api.UserApi;
-import cropcert.entities.model.Cooperative;
+import cropcert.entities.model.CooperativeEntity;
+import cropcert.entities.service.CooperativeEntityService;
 import cropcert.traceability.ActionStatus;
 import cropcert.traceability.Constants;
 import cropcert.traceability.LotStatus;
@@ -80,39 +79,32 @@ public class LotService extends AbstractService<Lot> {
 	private UserApi userApi;
 
 	@Inject
-	private CooperativeApi cooperativeApi;
+	private CooperativeEntityService cooperativeEntityService;
 
 	@Inject
 	public LotService(LotDao dao) {
 		super(dao);
 	}
-	
+
 	private static final String LOT_NOT_FOUND = "Lot not found";
-	
+
 	private static final String CO_CODE = "coCode";
 	private static final String LOT_ID = "lotId";
-	private static final String STATUS_ALREADY_DONE ="Status is already done";
-	private static final String CREATED_ON_DESC ="createdOn desc";
+	private static final String STATUS_ALREADY_DONE = "Status is already done";
+	private static final String CREATED_ON_DESC = "createdOn desc";
 
-
-
-
-	public List<LotList> getLotList(HttpServletRequest request, String coCodes, Integer limit, Integer offset) {
+	public List<LotList> getLotList(String coCodes, Integer limit, Integer offset) {
 
 		Object[] values = coCodes.split(",");
 		Long[] longValues = new Long[values.length];
-		Map<Long, Cooperative> cooperatives = new HashMap<>();
+		Map<Long, CooperativeEntity> cooperatives = new HashMap<>();
 		for (int i = 0; i < values.length; i++) {
 			longValues[i] = Long.parseLong(values[i].toString());
 
 			Long coCode = longValues[i];
-			Cooperative cooperative = null;
+			CooperativeEntity cooperative = null;
 
-			try {
-				cooperative = cooperativeApi.findByCode(coCode);
-			} catch (ApiException e) {
-				logger.error(e.getMessage());
-			}
+			cooperative = cooperativeEntityService.findByCode(coCode);
 
 			cooperatives.put(coCode, cooperative);
 		}
@@ -127,7 +119,7 @@ public class LotService extends AbstractService<Lot> {
 				// Don't do anything here.
 			}
 			Long coCode = lot.getCoCode();
-			Cooperative cooperative = cooperatives.get(coCode);
+			CooperativeEntity cooperative = cooperatives.get(coCode);
 			LotList lotList = new LotList(lot, factoryReport, cooperative);
 			lotLists.add(lotList);
 		}
@@ -533,7 +525,10 @@ public class LotService extends AbstractService<Lot> {
 						longValues[i] = Long.parseLong(values[i].toString());
 					}
 					return dao.getByPropertyfromArray(CO_CODE, longValues, limit, offset, CREATED_ON_DESC);
+				default:
+					continue;
 				}
+
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());

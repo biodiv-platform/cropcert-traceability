@@ -17,15 +17,15 @@ public class BatchCreationService extends AbstractService<BatchCreation> {
 
 	public List<Long> getByBatchId(String batchIdString, Integer limit, Integer offset) {
 		Long batchId = Long.parseLong(batchIdString);
-		
+
 		List<BatchCreation> batchCreations = getByPropertyWithCondtion("batchId", batchId, "=", limit, offset);
-		
-		List<Long> farmers = new ArrayList<Long>();
-		for(int i = 0; i<batchCreations.size(); i++) {
+
+		List<Long> farmers = new ArrayList<>();
+		for (int i = 0; i < batchCreations.size(); i++) {
 			BatchCreation batchCreation = batchCreations.get(i);
 			farmers.add(batchCreation.getFarmerId());
 		}
-		
+
 		return farmers;
 	}
 }

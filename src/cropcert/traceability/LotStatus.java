@@ -33,4 +33,4 @@ public enum LotStatus {
 		}
 		throw new IllegalArgumentException(value);
 	}
-};
+}

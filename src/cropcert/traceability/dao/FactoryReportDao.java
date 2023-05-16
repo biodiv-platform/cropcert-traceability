@@ -2,12 +2,16 @@ package cropcert.traceability.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
 import cropcert.traceability.model.FactoryReport;
 
-public class FactoryReportDao extends AbstractDao<FactoryReport, Long>{
+public class FactoryReportDao extends AbstractDao<FactoryReport, Long> {
+
+	private static final Logger logger = LoggerFactory.getLogger(FactoryReportDao.class);
 
 	@Inject
 	protected FactoryReportDao(SessionFactory sessionFactory) {
@@ -21,7 +25,7 @@ public class FactoryReportDao extends AbstractDao<FactoryReport, Long>{
 		try {
 			entity = session.get(FactoryReport.class, id);
 		} catch (Exception e) {
-			throw e;
+			logger.error(e.getMessage());
 		} finally {
 			session.close();
 		}

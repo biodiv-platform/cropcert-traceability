@@ -37,6 +37,12 @@ public class ActivityApi {
 
 	public static final Logger logger = LoggerFactory.getLogger(ActivityApi.class);
 
+	private static final String OBJECT_TYPE = "objectType";
+
+	private static final String OBJECT_ID = "objectID";
+
+	private static final String USER_ID = "userID";
+
 	private ActivityService activityService;
 
 	@Inject
@@ -79,11 +85,11 @@ public class ActivityApi {
 
 		List<Activity> activities;
 		if (batchId == -1) {
-			String[] properties = { "objectType" };
+			String[] properties = { OBJECT_TYPE };
 			Object[] values = { Batch.class.getSimpleName() };
 			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
 		} else {
-			String[] properties = { "objectType", "objectId" };
+			String[] properties = { OBJECT_TYPE, OBJECT_ID };
 			Object[] values = { Batch.class.getSimpleName(), batchId };
 			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
 		}
@@ -122,7 +128,7 @@ public class ActivityApi {
 		if ("".equals(userId) || userId == null)
 			userId = UserUtil.getUserDetails(request).getUsername();
 
-		String[] properties = { "userId" };
+		String[] properties = { USER_ID };
 		Object[] values = { userId };
 		List<Activity> activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit,
 				offset);
@@ -134,7 +140,7 @@ public class ActivityApi {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get list of the activities by lot and user ID", response = Activity.class, responseContainer = "List")
 	public Response getByLotAndUserId(@Context HttpServletRequest request,
-			@DefaultValue("-1") @QueryParam("lotId") Long lotId, @DefaultValue("") @QueryParam("userId") String userId,
+			@DefaultValue("-1") @QueryParam("lotId") Long lotId, @DefaultValue("") @QueryParam(USER_ID) String userId,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset) {
 
@@ -143,11 +149,11 @@ public class ActivityApi {
 
 		List<Activity> activities;
 		if (lotId == -1) {
-			String[] properties = { "objectType", "userId" };
+			String[] properties = { OBJECT_TYPE, USER_ID };
 			Object[] values = { Lot.class.getSimpleName(), userId };
 			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
 		} else {
-			String[] properties = { "objectType", "objectId", "userId" };
+			String[] properties = { OBJECT_TYPE, OBJECT_ID, USER_ID };
 			Object[] values = { Lot.class.getSimpleName(), lotId, userId };
 			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
 		}
@@ -168,11 +174,11 @@ public class ActivityApi {
 
 		List<Activity> activities;
 		if (batchId == -1) {
-			String[] properties = { "objectType", "userId" };
+			String[] properties = { OBJECT_TYPE, USER_ID };
 			Object[] values = { Batch.class.getSimpleName(), userId };
 			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
 		} else {
-			String[] properties = { "objectType", "objectId", "userId" };
+			String[] properties = { OBJECT_TYPE, OBJECT_ID, USER_ID };
 			Object[] values = { Batch.class.getSimpleName(), batchId, userId };
 			activities = activityService.getByMultiplePropertyWithCondtion(properties, values, limit, offset);
 		}

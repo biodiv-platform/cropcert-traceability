@@ -124,7 +124,7 @@ public class Lot implements Serializable, Cloneable {
 
 	@OneToMany(mappedBy = "lot", fetch = FetchType.EAGER, targetEntity = Cupping.class)
 	@OrderBy("id")
-	private Set<Cupping> cuppings = new LinkedHashSet<Cupping>();
+	private Set<Cupping> cuppings = new LinkedHashSet<>();
 
 	@Column(name = "lot_status")
 	private LotStatus lotStatus;

@@ -16,18 +16,16 @@ import io.swagger.annotations.ApiModel;
 
 public class Utility {
 
-	
 	public static List<Class<?>> getApiAnnotatedClassesFromPackage(String packageName)
 			throws ClassNotFoundException, IOException, URISyntaxException {
 		List<String> classNames = getClassNamesFromPackage(packageName);
-		List<Class<?>> classes = new ArrayList<Class<?>>();
+		List<Class<?>> classes = new ArrayList<>();
 		for (String className : classNames) {
 			Class<?> cls = Class.forName(className);
 			Annotation[] annotations = cls.getAnnotations();
 
 			for (Annotation annotation : annotations) {
-				if (annotation instanceof Api ||
-						annotation instanceof ApiModel) {
+				if (annotation instanceof Api || annotation instanceof ApiModel) {
 					classes.add(cls);
 				}
 			}
@@ -36,11 +34,10 @@ public class Utility {
 		return classes;
 	}
 
-	
 	public static List<Class<?>> getEntityClassesFromPackage(String packageName)
 			throws ClassNotFoundException, IOException, URISyntaxException {
 		List<String> classNames = getClassNamesFromPackage(packageName);
-		List<Class<?>> classes = new ArrayList<Class<?>>();
+		List<Class<?>> classes = new ArrayList<>();
 		for (String className : classNames) {
 			Class<?> cls = Class.forName(className);
 			Annotation[] annotations = cls.getAnnotations();
@@ -59,7 +56,7 @@ public class Utility {
 	private static ArrayList<String> getClassNamesFromPackage(final String packageName)
 			throws IOException, URISyntaxException, ClassNotFoundException {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		ArrayList<String> names = new ArrayList<String>();
+		ArrayList<String> names = new ArrayList<>();
 
 		URL packageURL = classLoader.getResource(packageName);
 
@@ -67,8 +64,8 @@ public class Utility {
 		File folder = new File(uri.getPath());
 
 		Files.find(Paths.get(folder.getAbsolutePath()), 999, (p, bfa) -> bfa.isRegularFile()).forEach(file -> {
-			String name = file.toFile().getAbsolutePath().replaceAll(folder.getAbsolutePath() + File.separatorChar, "").replace(File.separatorChar,
-					'.');
+			String name = file.toFile().getAbsolutePath().replaceAll(folder.getAbsolutePath() + File.separatorChar, "")
+					.replace(File.separatorChar, '.');
 			if (name.indexOf('.') != -1) {
 				name = packageName + '.' + name.substring(0, name.lastIndexOf('.'));
 				names.add(name);

@@ -51,13 +51,13 @@ public class FactoryReportService extends AbstractService<FactoryReport> {
 		else
 			factoryStatus = ActionStatus.EDIT;
 		jsonObject.remove(Constants.FINALIZE_FACTORY_STATUS);
-		
+
 		FactoryReport factoryReport = objectMappper.readValue(jsonObject.toString(), FactoryReport.class);
 		factoryReport.setIsDeleted(false);
 
 		Long lotId = factoryReport.getLotId();
 		factoryReport = save(factoryReport);
-		
+
 		Lot lot = lotService.findById(lotId);
 		lot.setFactoryStatus(factoryStatus);
 		lot.setFactoryReportId(factoryReport.getId());
@@ -70,15 +70,16 @@ public class FactoryReportService extends AbstractService<FactoryReport> {
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		Activity activity = new Activity(factoryReport.getClass().getSimpleName(), factoryReport.getId(), userId,
 				timestamp, Constants.FACTORY_REPORT, factoryReport.getLotId() + "");
-		activity = activityService.save(activity);
+		activityService.save(activity);
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		result.put("lot", lot);
 		result.put("factoryReport", factoryReport);
 		return result;
 	}
-	
-	public Map<String, Object> update(HttpServletRequest request, String jsonString) throws JsonParseException, JsonMappingException, IOException, ValidationException, JSONException {
+
+	public Map<String, Object> update(HttpServletRequest request, String jsonString)
+			throws JsonParseException, JsonMappingException, IOException, ValidationException, JSONException {
 		ActionStatus factoryStatus;
 		JSONObject jsonObject = new JSONObject(jsonString);
 		if (jsonObject.has(Constants.FINALIZE_FACTORY_STATUS)
@@ -87,10 +88,10 @@ public class FactoryReportService extends AbstractService<FactoryReport> {
 		else
 			factoryStatus = ActionStatus.EDIT;
 		jsonObject.remove(Constants.FINALIZE_FACTORY_STATUS);
-		
+
 		FactoryReport factoryReport = objectMappper.readValue(jsonObject.toString(), FactoryReport.class);
 		factoryReport = update(factoryReport);
-		
+
 		Long lotId = factoryReport.getLotId();
 		Lot lot = lotService.findById(lotId);
 		lot.setFactoryStatus(factoryStatus);
@@ -104,9 +105,9 @@ public class FactoryReportService extends AbstractService<FactoryReport> {
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		Activity activity = new Activity(factoryReport.getClass().getSimpleName(), factoryReport.getId(), userId,
 				timestamp, Constants.FACTORY_REPORT, factoryReport.getLotId() + "");
-		activity = activityService.save(activity);
+		activityService.save(activity);
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		result.put("lot", lot);
 		result.put("factoryReport", factoryReport);
 		return result;

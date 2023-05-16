@@ -25,10 +25,10 @@ import com.strandls.authentication_utility.filter.InterceptorModule;
 import cropcert.traceability.util.Utility;
 import io.swagger.jaxrs.config.BeanConfig;
 
-public class MyApplication extends Application{
-	
+public class MyApplication extends Application {
+
 	public static final Logger logger = LoggerFactory.getLogger(MyApplication.class);
-	
+
 	public static final String JWT_SALT;
 
 	static {
@@ -60,15 +60,15 @@ public class MyApplication extends Application{
 		beanConfig.setHost(properties.getProperty("host"));
 		beanConfig.setBasePath(properties.getProperty("basePath"));
 		beanConfig.setResourcePackage(properties.getProperty("resourcePackage"));
-		beanConfig.setPrettyPrint(new Boolean(properties.getProperty("prettyPrint")));
-		beanConfig.setScan(new Boolean(properties.getProperty("scan")));
+		beanConfig.setPrettyPrint(Boolean.parseBoolean(properties.getProperty("prettyPrint")));
+		beanConfig.setScan(Boolean.parseBoolean(properties.getProperty("scan")));
 
 	}
 
-        @Override
+	@Override
 	public Set<Object> getSingletons() {
 
-		Set<Object> singletons = new HashSet<Object>();
+		Set<Object> singletons = new HashSet<>();
 		singletons.add(new ContainerLifecycleListener() {
 
 			@Override
@@ -85,11 +85,13 @@ public class MyApplication extends Application{
 
 			@Override
 			public void onShutdown(Container container) {
+				// Shutdown the Container
 
 			}
 
 			@Override
 			public void onReload(Container container) {
+				// Reload the Container
 
 			}
 		});
@@ -100,14 +102,14 @@ public class MyApplication extends Application{
 
 	@Override
 	public Set<Class<?>> getClasses() {
-		Set<Class<?>> classes = new HashSet<Class<?>>();
+		Set<Class<?>> classes = new HashSet<>();
 		try {
 			List<Class<?>> apiClasses = Utility.getApiAnnotatedClassesFromPackage("cropcert");
 			classes.addAll(apiClasses);
 		} catch (ClassNotFoundException | IOException | URISyntaxException e) {
 			logger.error(e.getMessage());
 		}
-		
+
 		classes.add(io.swagger.jaxrs.listing.ApiListingResource.class);
 		classes.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
 		return classes;

@@ -43,23 +43,22 @@ public class QualityReportService extends AbstractService<QualityReport> {
 
 	public Map<String, Object> save(HttpServletRequest request, String jsonString)
 			throws JsonParseException, JsonMappingException, IOException, JSONException, ValidationException {
-		
+
 		ActionStatus greenStatus;
 		JSONObject jsonObject = new JSONObject(jsonString);
-		if (jsonObject.has(Constants.FINALIZE_GREEN_STATUS)
-				&& jsonObject.getBoolean(Constants.FINALIZE_GREEN_STATUS))
+		if (jsonObject.has(Constants.FINALIZE_GREEN_STATUS) && jsonObject.getBoolean(Constants.FINALIZE_GREEN_STATUS))
 			greenStatus = ActionStatus.DONE;
 		else
 			greenStatus = ActionStatus.EDIT;
 		jsonObject.remove(Constants.FINALIZE_GREEN_STATUS);
-		
+
 		QualityReport qualityReport = objectMappper.readValue(jsonObject.toString(), QualityReport.class);
 		qualityReport.setIsDeleted(false);
 
 		validationCheck(qualityReport);
 
 		qualityReport = save(qualityReport);
-		
+
 		Long lotId = qualityReport.getLotId();
 		Lot lot = lotService.findById(lotId);
 		lot.setGreenAnalysisStatus(greenStatus);
@@ -73,9 +72,9 @@ public class QualityReportService extends AbstractService<QualityReport> {
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		Activity activity = new Activity(qualityReport.getClass().getSimpleName(), qualityReport.getId(), userId,
 				timestamp, Constants.GREEN_ANALYSIS, qualityReport.getLotId() + "");
-		activity = activityService.save(activity);
-		
-		Map<String, Object> result = new HashMap<String, Object>();
+		activityService.save(activity);
+
+		Map<String, Object> result = new HashMap<>();
 		result.put("lot", lot);
 		result.put("qualityReport", qualityReport);
 
@@ -86,23 +85,22 @@ public class QualityReportService extends AbstractService<QualityReport> {
 			throws JsonParseException, JsonMappingException, IOException, ValidationException, JSONException {
 		ActionStatus greenStatus;
 		JSONObject jsonObject = new JSONObject(jsonString);
-		if (jsonObject.has(Constants.FINALIZE_GREEN_STATUS)
-				&& jsonObject.getBoolean(Constants.FINALIZE_GREEN_STATUS))
+		if (jsonObject.has(Constants.FINALIZE_GREEN_STATUS) && jsonObject.getBoolean(Constants.FINALIZE_GREEN_STATUS))
 			greenStatus = ActionStatus.DONE;
 		else
 			greenStatus = ActionStatus.EDIT;
 		jsonObject.remove(Constants.FINALIZE_GREEN_STATUS);
-		
+
 		QualityReport qualityReport = objectMappper.readValue(jsonObject.toString(), QualityReport.class);
 		validationCheck(qualityReport);
 		qualityReport = update(qualityReport);
-		
+
 		Long lotId = qualityReport.getLotId();
 		Lot lot = lotService.findById(lotId);
 		lot.setGreenAnalysisStatus(greenStatus);
 		lot.setGreenAnalysisId(qualityReport.getId());
 		lotService.update(lot);
-		
+
 		/**
 		 * save the activity here.
 		 */
@@ -110,9 +108,9 @@ public class QualityReportService extends AbstractService<QualityReport> {
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		Activity activity = new Activity(qualityReport.getClass().getSimpleName(), qualityReport.getId(), userId,
 				timestamp, Constants.GREEN_ANALYSIS, qualityReport.getLotId() + "");
-		activity = activityService.save(activity);
-		
-		Map<String, Object> result = new HashMap<String, Object>();
+		activityService.save(activity);
+
+		Map<String, Object> result = new HashMap<>();
 		result.put("lot", lot);
 		result.put("qualityReport", qualityReport);
 

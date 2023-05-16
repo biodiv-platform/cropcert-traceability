@@ -13,7 +13,6 @@ public class GRNNumberData {
 
 	public GRNNumberData() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public GRNNumberData(Long id, String grnNumber, Timestamp grnTimestamp, Boolean finalizeGrnStatus) {

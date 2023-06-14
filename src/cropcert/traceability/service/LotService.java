@@ -498,7 +498,11 @@ public class LotService extends AbstractService<Lot> {
 		String grnNumber = grnNumberData.getGrnNumber();
 		try {
 			Lot lot = findByPropertyWithCondtion(Constants.GRN_NUMBER, grnNumber, "=");
-			return !lot.getId().equals(grnNumberData.getId());
+			if (lot != null) {
+				return !lot.getId().equals(grnNumberData.getId());
+			} else {
+				return false;
+			}
 		} catch (NoResultException e) {
 			return false;
 		}

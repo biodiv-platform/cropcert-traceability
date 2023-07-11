@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import cropcert.entities.model.Cooperative;
+import cropcert.entities.model.CooperativeEntity;
 import cropcert.traceability.LotStatus;
 
 public class LotList {
@@ -24,7 +24,7 @@ public class LotList {
 	private String manager;
 	private String contact;
 
-	public LotList(Lot lot, FactoryReport factoryReport, Cooperative cooperative) {
+	public LotList(Lot lot, FactoryReport factoryReport, CooperativeEntity cooperativeEntity) {
 		this.id = lot.getId();
 		this.lotName = lot.getLotName();
 		this.coCode = lot.getCoCode();
@@ -36,25 +36,25 @@ public class LotList {
 		this.qualityScores = getQualityScore(lot.getCuppings());
 		this.grnNumber = lot.getGrnNumber();
 		this.createdOn = lot.getCreatedOn();
-		if(cooperative != null) {
-			this.cooperativeName = cooperative.getName();
-			this.cooperativeFullName = cooperative.getFullName();
-			this.manager = cooperative.getManager();
-			this.contact = cooperative.getContact();
+		if (cooperativeEntity != null) {
+			this.cooperativeName = cooperativeEntity.getName();
+			this.cooperativeFullName = cooperativeEntity.getFullName();
+			this.manager = cooperativeEntity.getManager();
+			this.contact = cooperativeEntity.getContact();
 		}
 	}
 
 	private Set<Float> getQualityScore(Set<Cupping> cuppings) {
-		Set<Float> Scores = new HashSet<>();
+		Set<Float> scores = new HashSet<>();
 		if (cuppings == null || cuppings.isEmpty())
-			return Scores;
+			return scores;
 		for (Cupping cupping : cuppings) {
 			float score = cupping.getAcidity() + cupping.getAfterTaste() + cupping.getBalance() + cupping.getBody()
 					+ cupping.getCleanCup() - cupping.getFault() + cupping.getFlavour() + cupping.getFragranceAroma()
 					+ cupping.getOverAll() + cupping.getSweetness() - cupping.getTaint() + cupping.getUniformity();
-			Scores.add(score);
+			scores.add(score);
 		}
-		return Scores;
+		return scores;
 	}
 
 	public Long getId() {

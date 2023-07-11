@@ -237,6 +237,7 @@ public class BatchService extends AbstractService<Batch> {
 
 			for (Role role : userRole.getRoles()) {
 				switch (role.getAuthority()) {
+				case Permissions.UNION:
 				case Permissions.ADMIN:
 				case Permissions.CO_PERSON:
 					Object[] values = objectList.split(",");
@@ -245,9 +246,6 @@ public class BatchService extends AbstractService<Batch> {
 						ccCodes[i] = Long.parseLong(values[i].toString());
 					}
 					return batchDao.getBatchesForCooperative(ccCodes, limit, offset);
-				case Permissions.UNION:
-					Long unionCode = Long.parseLong(userData.get("unionCode").toString());
-					return batchDao.getBatchesForUnion(unionCode, limit, offset);
 				default:
 					break;
 				}
